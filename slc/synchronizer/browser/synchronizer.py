@@ -3,7 +3,7 @@ from zope.interface import implements
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFCore.utils import getToolByName
-from interfaces import ISynchronizer
+from slc.synchronizer.interfaces import ISynchronizer
 
 
 class Synchronizer(BrowserView):
@@ -28,7 +28,7 @@ class Synchronizer(BrowserView):
 
 
     def getSyncStatus(self):
-        """ return status about last syndication """
+        """ return status about last synchronization """
         return self.proxy.getSyncStatus(self.context.UID())
 
 

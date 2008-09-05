@@ -17,4 +17,7 @@ class IReceiver(Interface):
             update its data using the data mapping
             returns a feedback message and the link of the object in question
         """
-        
+
+
+class ISynchronizer(Interface):
+    """ Interface for synchronization functionality """
