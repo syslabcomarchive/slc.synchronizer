@@ -86,7 +86,6 @@ def list_nontestbrowser_tests():
 
 def test_suite():
     filenames = list_doctests()
-    print "test_suite", filenames
 
     suites = [Suite(os.path.sep.join(['tests', os.path.basename(filename)]),
                     optionflags=OPTIONFLAGS,
