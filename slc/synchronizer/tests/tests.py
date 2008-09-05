@@ -1,6 +1,6 @@
 import os, sys
 
-from Products.RiskAssessmentLink import GLOBALS
+from slc.synchronizer import GLOBALS
 
 import glob
 from zope.testing import doctest
@@ -18,10 +18,11 @@ OPTIONFLAGS = (doctest.REPORT_ONLY_FIRST_FAILURE |
                doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE)
 
-PloneTestCase.installProduct('ATVocabularyManager')
-PloneTestCase.installProduct('RiskAssessmentLink')
-PloneTestCase.installProduct('RemoteProvider')
-PloneTestCase.setupPloneSite(products=['ATVocabularyManager','RiskAssessmentLink', 'RemoteProvider'])
+#PloneTestCase.installProduct('ATVocabularyManager')
+#PloneTestCase.installProduct('RiskAssessmentLink')
+#PloneTestCase.installProduct('RemoteProvider')
+#PloneTestCase.setupPloneSite(products=['ATVocabularyManager','RiskAssessmentLink', 'RemoteProvider'])
+PloneTestCase.setupPloneSite()
 
 from zope.interface import implements
 
@@ -51,7 +52,7 @@ def test_suite():
 
     suites = [Suite(os.path.sep.join(['tests', os.path.basename(filename)]),
                     optionflags=OPTIONFLAGS,
-                    package='Products.RiskAssessmentLink',
+                    package='slc.synchronizer',
                     test_class=PloneTestCase.FunctionalTestCase)
               for filename in filenames]
 
