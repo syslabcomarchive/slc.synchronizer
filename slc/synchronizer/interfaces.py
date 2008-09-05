@@ -11,7 +11,7 @@ class IReceiver(Interface):
             as well as the link of the object
         """
 
-    def syncObject(portal_type, data={}, site_id, remote_uid=None, translation_reference_uid=None):
+    def syncObject(portal_type, data={}, site_id=None, remote_uid=None, translation_reference_uid=None):
         """ check if an object to the given remote_uid exists
             if not, create one using the portal_type
             update its data using the data mapping
