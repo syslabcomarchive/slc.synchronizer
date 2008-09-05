@@ -1,0 +1,15 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:genericsetup="http://namespaces.zope.org/genericsetup"
+    i18n_domain="slc.synchronizer">
+
+  <genericsetup:registerProfile
+      name="default"
+      title="slc.synchronizer"
+      directory="profiles/default"
+      description="Extension profile for slc.synchronizer."
+      provides="Products.GenericSetup.interfaces.EXTENSION"
+      />
+  
+
+</configure>

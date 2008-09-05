@@ -7,18 +7,60 @@ from zope.testing import doctest
 import unittest
 
 from Globals import package_home
+from Testing import ZopeTestCase as ztc
 from Testing.ZopeTestCase import FunctionalDocFileSuite as Suite
 from Products.CMFPlone.tests import PloneTestCase
-
+from Products.PloneTestCase.layer import onsetup
+from Products.Five import zcml
+from Products.Five import fiveconfigure
 import Products.Five.testbrowser
     
 REQUIRE_TESTBROWSER = []
-#doctest.REPORT_ONLY_FIRST_FAILURE |
-               
-OPTIONFLAGS = (doctest.ELLIPSIS |
+
+OPTIONFLAGS = (doctest.REPORT_ONLY_FIRST_FAILURE |
+               doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE)
 
-PloneTestCase.setupPloneSite()
+
+@onsetup
+def setup_product():
+    """Set up the package and its dependencies.
+    
+    The @onsetup decorator causes the execution of this body to be deferred
+    until the setup of the Plone site testing layer. We could have created our
+    own layer, but this is the easiest way for Plone integration tests.
+    """
+    
+    # Load the ZCML configuration for the example.tests package.
+    # This can of course use <include /> to include other packages.
+    
+    fiveconfigure.debug_mode = True
+    import slc.synchronizer
+    zcml.load_config('configure.zcml', slc.synchronizer)
+    fiveconfigure.debug_mode = False
+    
+    # We need to tell the testing framework that these products
+    # should be available. This can't happen until after we have loaded
+    # the ZCML. Thus, we do it here. Note the use of installPackage() instead
+    # of installProduct().
+    # 
+    # This is *only* necessary for packages outside the Products.* namespace
+    # which are also declared as Zope 2 products, using 
+    # <five:registerPackage /> in ZCML.
+    
+    # We may also need to load dependencies, e.g.:
+    # 
+    #   ztc.installPackage('borg.localrole')
+    # 
+    
+    ztc.installPackage('slc.synchronizer')
+    
+# The order here is important: We first call the (deferred) function which
+# installs the products we need for this product. Then, we let PloneTestCase 
+# set up this product on installation.
+
+setup_product()
+PloneTestCase.setupPloneSite(products=['slc.synchronizer'])
 
 from zope.interface import implements
 

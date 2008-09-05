@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<componentregistry>
+ <adapters/>
+ <utilities>
+  <utility
+     interface="slc.synchronizer.interfaces.IUIDMappingStorage"
+     factory="slc.synchronizer.uid_mapper.UIDMappingStorage"/>
+ </utilities>
+</componentregistry>
+     
