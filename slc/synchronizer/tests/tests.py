@@ -18,10 +18,6 @@ OPTIONFLAGS = (doctest.REPORT_ONLY_FIRST_FAILURE |
                doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE)
 
-#PloneTestCase.installProduct('ATVocabularyManager')
-#PloneTestCase.installProduct('RiskAssessmentLink')
-#PloneTestCase.installProduct('RemoteProvider')
-#PloneTestCase.setupPloneSite(products=['ATVocabularyManager','RiskAssessmentLink', 'RemoteProvider'])
 PloneTestCase.setupPloneSite()
 
 from zope.interface import implements
