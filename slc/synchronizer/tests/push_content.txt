@@ -8,34 +8,25 @@ Setting up
 
     >>> from DateTime import DateTime
 
-    Create a RiskAssessmentLink
-    >>> _ = folder.invokeFactory(id='myralink', type_name='RiskAssessmentLink')
-    >>> ralink = folder[_]
-    >>> ralink.unmarkCreationFlag()
-    >>> ralink.id
-    'myralink'
+    Create a Document
+    >>> _ = folder.invokeFactory(id='mydoc', type_name='Document')
+    >>> doc = folder[_]
+    >>> doc.unmarkCreationFlag()
+    >>> doc.id
+    'mydoc'
     
     Give it a fake UID
-    >>> ralink._at_uid = '1'
-    
-    Create a Provider
-    >>> _ = folder.invokeFactory(id='myprovider', type_name="Provider")
-    >>> rp = folder[_]
+    >>> doc._at_uid = '1'
     
     Create some data
-    >>> mydata = dict(id='myralink', title='ratitle', description='radescription', remoteUrl='http://remote', 
-    ...   dateOfEditing='2004-08-01', dateOfEditing_year='2004', dateOfEditing_month='08', dateOfEditing_day='01',
-    ...   contents='racontents', remarks='raremarks', nace=['01', '05'],
-    ...   riskfactors=['rariskfactors'], remoteProvider=rp)
-    >>> ralink.processForm(data=1, values=mydata)
-    
+    >>> mydata = dict(id='mydoc', title='doctitle', description='docdescription')
+    >>> doc.processForm(data=1, values=mydata)
     
     
     
     Mockup class that provides interface functionality of the receiving end
     >>> class XMLRPCProxy(object):
     ...   UIDS = dict()
-    ...     #{'1' :('2008/09/03', 'http://osha.europa.eu/myralink')}
     ...   def __init__(self, id):
     ...     self.id = id
     ...
@@ -60,40 +51,32 @@ Setting up
     ...     link = 'http://osha.europa.eu/%s/%s' %(portal_type, data['id'])
     ...     self.UIDS[remote_uid] = (date + 1, link)
     ...     return msg, link
-    
-    Initialize XMLRPCProxy
-    >>> proxy = XMLRPCProxy('proxy')
-    >>> proxy.getSyncStatus('1')
-    (None, None)
-    
-
 
 Testing the connection
 ----------------------
+
+    Initialize XMLRPCProxy
+    >>> proxy = XMLRPCProxy('proxy')
     
-    Get the BrowserView that handles synchronisation
-    >>> bv = ralink.restrictedTraverse('synchronize_content')
-    >>> bv.setProxy(proxy)
-    
-    Our RiskAssessmentLink has never been synchronized before:
-    >>> bv.getRAStatus()
+    Our Document has never been synchronized before:
+    >>> proxy.getSyncStatus(doc.UID())
     (None, None)
     
+    
     Now we synchronize for the first time
-    >>> proxy.syncObject('RiskAssessmentLink', {'id': ralink.id}, ralink.UID())
-    ('Object was created', 'http://osha.europa.eu/RiskAssessmentLink/myralink')
+    >>> proxy.syncObject(doc.portal_type, {'id': doc.id}, doc.UID())
+    ('Object was created', 'http://osha.europa.eu/Document/mydoc')
     
     So now we have a status:
-    >>> bv.getRAStatus()
-    (1, 'http://osha.europa.eu/RiskAssessmentLink/myralink')
+    >>> proxy.getSyncStatus(doc.UID())
+    (1, 'http://osha.europa.eu/Document/mydoc')
     
     We synchronize again
-    >>> proxy.syncObject('RiskAssessmentLink', {'id': ralink.id}, ralink.UID())
-    ('Object was modified', 'http://osha.europa.eu/RiskAssessmentLink/myralink')
+    >>> proxy.syncObject(doc.portal_type, {'id': doc.id}, doc.UID())
+    ('Object was modified', 'http://osha.europa.eu/Document/mydoc')
 
     And the status returns a 'newer' date
-    >>> bv.getRAStatus()
-    (2, 'http://osha.europa.eu/RiskAssessmentLink/myralink')
+    >>> proxy.getSyncStatus(doc.UID())
+    (2, 'http://osha.europa.eu/Document/mydoc')
 
-    >>> data = bv.getRAData()
 
