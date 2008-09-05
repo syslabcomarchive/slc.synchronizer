@@ -21,3 +21,9 @@ class IReceiver(Interface):
 
 class ISynchronizer(Interface):
     """ Interface for synchronization functionality """
+
+
+class IDataExtractor(Interface):
+    """ Interface for an adapter that extracts the content of object and returns
+        it as a key-value-mapping
+    """

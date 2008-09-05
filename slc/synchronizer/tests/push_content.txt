@@ -14,16 +14,16 @@ Setting up
     >>> doc.unmarkCreationFlag()
     >>> doc.id
     'mydoc'
-    
+
     Give it a fake UID
     >>> doc._at_uid = '1'
-    
+
     Create some data
     >>> mydata = dict(id='mydoc', title='doctitle', description='docdescription')
     >>> doc.processForm(data=1, values=mydata)
-    
-    
-    
+
+
+
     Mockup class that provides interface functionality of the receiving end
     >>> class XMLRPCProxy(object):
     ...   UIDS = dict()
@@ -57,20 +57,19 @@ Testing the connection
 
     Initialize XMLRPCProxy
     >>> proxy = XMLRPCProxy('proxy')
-    
+
     Our Document has never been synchronized before:
     >>> proxy.getSyncStatus(doc.UID())
     (None, None)
-    
-    
+
     Now we synchronize for the first time
     >>> proxy.syncObject(doc.portal_type, mydata, doc.UID())
     ('Object was created', 'http://osha.europa.eu/Document/mydoc')
-    
+
     So now we have a status:
     >>> proxy.getSyncStatus(doc.UID())
     (1, 'http://osha.europa.eu/Document/mydoc')
-    
+
     We synchronize again
     >>> proxy.syncObject(doc.portal_type, mydata, doc.UID())
     ('Object was modified', 'http://osha.europa.eu/Document/mydoc')
@@ -86,15 +85,39 @@ Testing the BrowserView
     Get the BrowserView that handles synchronisation
     >>> bv = doc.restrictedTraverse('synchronize_content')
     >>> bv.setProxy(proxy)
-    
+
     We should get the identical sync status as before
     >>> bv.getSyncStatus()
     (2, 'http://osha.europa.eu/Document/mydoc')
-    
+
     And synching should also work...
     >>> bv.syncObject(doc.portal_type, mydata, doc.UID())
     ('Object was modified', 'http://osha.europa.eu/Document/mydoc')
-    
+
     so that "date" is updated again
     >>> bv.getSyncStatus()
     (3, 'http://osha.europa.eu/Document/mydoc')
+
+
+Testing the Extractor
+---------------------
+
+    >>> from slc.synchronizer.interfaces import IDataExtractor
+
+    Apply the extracting adapter to the Document and call it to retrieve the data
+    >>> extractor = IDataExtractor(doc)
+    >>> data = extractor()
+
+    We should get a mapping
+    >>> isinstance(data, dict)
+    True
+
+    The title is present in the mapping, and corresponds to the one we set
+    >>> data.get('title', '')
+    'doctitle'
+
+    Metadata fields are alo part of the data.
+    >>> data.has_key('rights')
+    True
+
+    >>> #import pdb; pdb.set_trace()
