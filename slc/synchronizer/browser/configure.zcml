@@ -1,0 +1,14 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:five="http://namespaces.zope.org/five">
+
+
+
+    <browser:page
+        for="Products.Archetypes.interfaces.IBaseObject"
+        name="synchronize_content"
+        class=".synchronizer.Synchronizer"
+        permission="zope2.View"
+    />
+
+</configure>

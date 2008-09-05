@@ -4,5 +4,7 @@
     i18n_domain="slc.synchronizer">
 
     <five:registerPackage package="." initialize=".initialize" />
+    
+     <include package=".browser" />
 
 </configure>
