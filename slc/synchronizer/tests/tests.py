@@ -13,9 +13,9 @@ from Products.CMFPlone.tests import PloneTestCase
 import Products.Five.testbrowser
     
 REQUIRE_TESTBROWSER = []
-
-OPTIONFLAGS = (doctest.REPORT_ONLY_FIRST_FAILURE |
-               doctest.ELLIPSIS |
+#doctest.REPORT_ONLY_FIRST_FAILURE |
+               
+OPTIONFLAGS = (doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE)
 
 PloneTestCase.setupPloneSite()

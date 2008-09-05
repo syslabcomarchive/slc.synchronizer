@@ -1,0 +1,57 @@
+========================
+Synchronization Receiver
+========================
+
+This component provides an XMLRPC endpoint which can receive data that is 
+necessary to create or edit a new object as well as return status information.
+
+Every folderish object can be used as a bridgehead to call the synchronizer mechanism.
+    
+    >>> from zope.component import getAdapter, getMultiAdapter
+    >>> from slc.synchronizer.interfaces import IReceiver
+    >>> receiver = getMultiAdapter((self.folder, self.folder.REQUEST), IReceiver)
+
+First a remote site will usually call getSyncStatus, so find out if an object
+already has been synced. We have not synced anything yet, so the return will be None
+
+    >>> receiver.getSyncStatus('REMOTEUID')
+    None
+    
+Next, we assume the receiver gets called with the data to add a new document. 
+Currently there are no translations for that document. It should return the link 
+to the new object
+    
+    >>> result = receiver.syncObject("Document", data={'title': 'Synced Title', 'description': 'Synced Description'}, remote_uid='REMOTEUID', translation_reference_uid=None)
+    >>> result[0]
+    'Object created successfully'
+    >>> result[1]
+    'http://'
+    >>> obj_id = result[1].split('/')[-1]
+
+And finally the object has been created.
+
+    >>> obj_id in self.folder.objectIds()
+    True
+
+If the sync status is now called for the same object, it will return the 
+modification date of the now existing object.
+
+    >>> receiver.getSyncStatus('REMOTEUID') is None
+    False
+    
+If the object is now synced again, it will not be created anew but the existing 
+object will be edited.
+
+    >>> len(self.folder.objectIds())
+    1
+
+    >>> result = receiver.syncObject("Document", data={'title': 'ReSynced Title', 'description': 'ReSynced Description'}, remote_uid='REMOTEUID', translation_reference_uid=None)
+    
+    >>> len(self.folder.objectIds())
+    1
+    >>> ob = getattr(self.folder, obj_id, None)
+    >>> ob.Title()
+    'ReSynched Title'
+    >>> ob.Description()
+    'ReSynched Description'
+    
