@@ -21,15 +21,21 @@ class Synchronizer(BrowserView):
     def __init__(self, context, request):
         self.context = context
         self.request = request
+        self.site_id = ''
+        self.proxy = None
         
     def setProxy(self, proxy):
         """ used for testing currently..."""
         self.proxy = proxy
 
+    def setSiteId(self, site_id):
+        """ set the site-id which identifies this site at the receving end 
+        """
+        self.site_id = ''
 
     def getSyncStatus(self):
         """ return status about last synchronization """
-        return self.proxy.getSyncStatus(self.context.UID())
+        return self.proxy.getSyncStatus(self.site_id, self.context.UID())
 
 
     def syncObject(self, portal_type, data={}, remote_uid=None, translation_reference_uid=None):
@@ -38,5 +44,5 @@ class Synchronizer(BrowserView):
             update its data using the data mapping
             returns a feedback message and the link of the object in question
         """
-        return self.proxy.syncObject(portal_type, data, remote_uid, translation_reference_uid)
+        return self.proxy.syncObject(portal_type, data, self.site_id, remote_uid, translation_reference_uid)
 

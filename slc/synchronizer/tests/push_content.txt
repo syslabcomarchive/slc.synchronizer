@@ -8,7 +8,7 @@ Setting up
 
     >>> from DateTime import DateTime
 
-    Create a Document
+    Create a Document, which will be used for synching.
     >>> _ = folder.invokeFactory(id='mydoc', type_name='Document')
     >>> doc = folder[_]
     >>> doc.unmarkCreationFlag()
@@ -18,10 +18,12 @@ Setting up
     Give it a fake UID
     >>> doc._at_uid = '1'
 
-    Create some data
+    Create some data, like title and description, which we can test against
     >>> mydata = dict(id='mydoc', title='doctitle', description='docdescription')
     >>> doc.processForm(data=1, values=mydata)
 
+    We need to have a site-id so that the receving end can indentify us:
+    >>> site_id = 'testing'
 
 
     Mockup class that provides interface functionality of the receiving end
@@ -30,14 +32,14 @@ Setting up
     ...   def __init__(self, id):
     ...     self.id = id
     ...
-    ...   def getSyncStatus(self, remote_uid):
+    ...   def getSyncStatus(self, site_id, remote_uid):
     ...     """ looks up the remote uid in the local utility to get the local uid.
     ...     resolves the object using the local uid
     ...     returns the modification date of the referenced object or None, if no such object exists
     ...     as well as the link of the object"""
     ...     return self.UIDS.get(remote_uid, (None, None))
     ...
-    ...   def syncObject(self, portal_type, data={}, remote_uid=None, translation_reference_uid=None):
+    ...   def syncObject(self, portal_type, data={}, site_id=None, remote_uid=None, translation_reference_uid=None):
     ...     """ check if an object to the given remote_uid exists
     ...     if not, create one using the portal_type
     ...     update its data using the data mapping
@@ -48,35 +50,37 @@ Setting up
     ...     else:
     ...       msg = 'Object was created'
     ...       date = 0
-    ...     link = 'http://osha.europa.eu/%s/%s' %(portal_type, data['id'])
+    ...     link = 'http://www.mysite.com/%s/%s' %(portal_type, data['id'])
+    ...     # write the data to the uid-to-date-and-link-mapping, incementing the "date"
     ...     self.UIDS[remote_uid] = (date + 1, link)
     ...     return msg, link
+
 
 Testing the connection
 ----------------------
 
-    Initialize XMLRPCProxy
+    Initialize the XMLRPCProxy mockup
     >>> proxy = XMLRPCProxy('proxy')
 
-    Our Document has never been synchronized before:
-    >>> proxy.getSyncStatus(doc.UID())
+    Our Document has never been synchronized before, so we get no status data.
+    >>> proxy.getSyncStatus(site_id, doc.UID())
     (None, None)
 
     Now we synchronize for the first time
-    >>> proxy.syncObject(doc.portal_type, mydata, doc.UID())
-    ('Object was created', 'http://osha.europa.eu/Document/mydoc')
+    >>> proxy.syncObject(doc.portal_type, mydata, site_id, doc.UID())
+    ('Object was created', 'http://www.mysite.com/Document/mydoc')
 
-    So now we have a status:
-    >>> proxy.getSyncStatus(doc.UID())
-    (1, 'http://osha.europa.eu/Document/mydoc')
+    And now we have a status:
+    >>> proxy.getSyncStatus(site_id, doc.UID())
+    (1, 'http://www.mysite.com/Document/mydoc')
 
     We synchronize again
-    >>> proxy.syncObject(doc.portal_type, mydata, doc.UID())
-    ('Object was modified', 'http://osha.europa.eu/Document/mydoc')
+    >>> proxy.syncObject(doc.portal_type, mydata, site_id, doc.UID())
+    ('Object was modified', 'http://www.mysite.com/Document/mydoc')
 
     And the status returns a 'newer' date
-    >>> proxy.getSyncStatus(doc.UID())
-    (2, 'http://osha.europa.eu/Document/mydoc')
+    >>> proxy.getSyncStatus(site_id, doc.UID())
+    (2, 'http://www.mysite.com/Document/mydoc')
 
 
 Testing the BrowserView
@@ -85,18 +89,19 @@ Testing the BrowserView
     Get the BrowserView that handles synchronisation
     >>> bv = doc.restrictedTraverse('synchronize_content')
     >>> bv.setProxy(proxy)
+    >>> bv.setSiteId(site_id)
 
-    We should get the identical sync status as before
+    We get the identical sync status as before:
     >>> bv.getSyncStatus()
-    (2, 'http://osha.europa.eu/Document/mydoc')
+    (2, 'http://www.mysite.com/Document/mydoc')
 
-    And synching should also work...
+    And synching also works...
     >>> bv.syncObject(doc.portal_type, mydata, doc.UID())
-    ('Object was modified', 'http://osha.europa.eu/Document/mydoc')
+    ('Object was modified', 'http://www.mysite.com/Document/mydoc')
 
     so that "date" is updated again
     >>> bv.getSyncStatus()
-    (3, 'http://osha.europa.eu/Document/mydoc')
+    (3, 'http://www.mysite.com/Document/mydoc')
 
 
 Testing the Extractor
@@ -104,11 +109,11 @@ Testing the Extractor
 
     >>> from slc.synchronizer.interfaces import IDataExtractor
 
-    Apply the extracting adapter to the Document and call it to retrieve the data
+    Apply the adapter for extracting to the Document and call it to retrieve the data
     >>> extractor = IDataExtractor(doc)
     >>> data = extractor()
 
-    We should get a mapping
+    We get a mapping
     >>> isinstance(data, dict)
     True
 
