@@ -1,32 +1,33 @@
 Push content
 ===============
 
+With this package it is possible to synch object types from one site to another.
 This doctest gives an overview about pushing content to be synchronized.
 
 Setting up
 ----------
 
+Some necessary imports and initializations. E.g. we need to have a site-id so 
+that the receving end can indentify us:
+
     >>> from DateTime import DateTime
-
-    Create a Document, which will be used for synching.
-    >>> _ = folder.invokeFactory(id='mydoc', type_name='Document')
-    >>> doc = folder[_]
-    >>> doc.unmarkCreationFlag()
-    >>> doc.id
-    'mydoc'
-
-    Give it a fake UID
-    >>> doc._at_uid = '1'
-
-    Create some data, like title and description, which we can test against
-    >>> mydata = dict(id='mydoc', title='doctitle', description='docdescription')
-    >>> doc.processForm(data=1, values=mydata)
-
-    We need to have a site-id so that the receving end can indentify us:
     >>> site_id = 'testing'
 
+Create a Document, which will be used for synching, remembering the UID and Create 
+some data, like title and description, which we can test against.
 
-    Mockup class that provides interface functionality of the receiving end
+
+    >>> _ = folder.invokeFactory(id='mydoc', type_name='Document')
+    >>> doc = folder[_]
+    >>> mydata = dict(id='mydoc', title='doctitle', description='docdescription')
+    >>> doc.processForm(data=1, values=mydata)
+    >>> doc.id
+    'mydoc'
+    >>> doc_uid = doc.UID()
+
+
+Mockup class that provides interface functionality of the receiving end
+
     >>> class XMLRPCProxy(object):
     ...   UIDS = dict()
     ...   def __init__(self, id):
@@ -58,27 +59,33 @@ Setting up
 
 Testing the connection
 ----------------------
+    
+Initialize the XMLRPCProxy mockup
 
-    Initialize the XMLRPCProxy mockup
     >>> proxy = XMLRPCProxy('proxy')
 
-    Our Document has never been synchronized before, so we get no status data.
+Our Document has never been synchronized before, so we get no status data.
+
     >>> proxy.getSyncStatus(site_id, doc.UID())
     (None, None)
 
-    Now we synchronize for the first time
+Now we synchronize for the first time
+
     >>> proxy.syncObject(doc.portal_type, mydata, site_id, doc.UID())
     ('Object was created', 'http://www.mysite.com/Document/mydoc')
 
-    And now we have a status:
+And now we have a status:
+
     >>> proxy.getSyncStatus(site_id, doc.UID())
     (1, 'http://www.mysite.com/Document/mydoc')
 
-    We synchronize again
+We synchronize again
+
     >>> proxy.syncObject(doc.portal_type, mydata, site_id, doc.UID())
     ('Object was modified', 'http://www.mysite.com/Document/mydoc')
 
-    And the status returns a 'newer' date
+And the status returns a 'newer' date
+
     >>> proxy.getSyncStatus(site_id, doc.UID())
     (2, 'http://www.mysite.com/Document/mydoc')
 
@@ -86,20 +93,24 @@ Testing the connection
 Testing the BrowserView
 -----------------------
 
-    Get the BrowserView that handles synchronisation
+Get the BrowserView that handles synchronisation
+
     >>> bv = doc.restrictedTraverse('synchronize_content')
     >>> bv.setProxy(proxy)
     >>> bv.setSiteId(site_id)
 
-    We get the identical sync status as before:
+We get the identical sync status as before:
+
     >>> bv.getSyncStatus()
     (2, 'http://www.mysite.com/Document/mydoc')
 
-    And synching also works...
+And synching also works...
+
     >>> bv.syncObject(doc.portal_type, mydata, doc.UID())
     ('Object was modified', 'http://www.mysite.com/Document/mydoc')
 
-    so that "date" is updated again
+so that "date" is updated again
+
     >>> bv.getSyncStatus()
     (3, 'http://www.mysite.com/Document/mydoc')
 
@@ -109,19 +120,23 @@ Testing the Extractor
 
     >>> from slc.synchronizer.interfaces import IDataExtractor
 
-    Apply the adapter for extracting to the Document and call it to retrieve the data
+Apply the adapter for extracting to the Document and call it to retrieve the data
+
     >>> extractor = IDataExtractor(doc)
     >>> data = extractor()
 
-    We get a mapping
+We get a mapping
+
     >>> isinstance(data, dict)
     True
 
-    The title is present in the mapping, and corresponds to the one we set
+The title is present in the mapping, and corresponds to the one we set
+
     >>> data.get('title', '')
     'doctitle'
 
-    Metadata fields are alo part of the data.
+Metadata fields are alo part of the data.
+
     >>> data.has_key('rights')
     True
 

@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<rolemap>
+  <permissions>
+    <permission name="Synchronize portal content"
+                acquire="False">
+      <role name="Owner"/>
+    </permission>
+  </permissions>
+</rolemap>
