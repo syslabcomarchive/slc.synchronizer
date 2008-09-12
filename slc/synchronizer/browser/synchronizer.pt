@@ -3,22 +3,41 @@
     metal:use-macro="here/main_template/macros/master"
     i18n:domain="plone">
 
-    <body>
-        <div metal:fill-slot="main" id="synchronizerForm">
-            <h1 class="documentFirstHeading">Synchronize data</h1>
+<body>
+  <div metal:fill-slot="main" id="synchronizerForm">
+    <h1 class="documentFirstHeading">Synchronize data</h1>
 
-            <p>Synchronize data using this form.</p>
+    <p>Synchronize data using this form.</p>
 
-            <fieldset>
-                <label>Synchronize</label>
-                <form method="get" 
-                      tal:attributes="action string:${context/absolute_url}/${view/__name__}">
-                <p>Press this button to start synchronization</p>
-                    <input type="submit" class="context" name="form.button.Synchronize" value="Synchronize"/>
-                </form>
-            </fieldset>
 
+    <div>
+        <h2>Current sync status</h2>
+        <div tal:content="view/getSyncStatus"></div>
+    </div>
+        
+
+    <fieldset>
+      <label>Synchronize</label>
+      <form method="get" 
+              tal:attributes="action string:${context/absolute_url}/${view/__name__}">
+        <div class="field">
+          <label>Server</label>
+          <div><input type="text" name="server" size="80" value="http://admin:admin@devel:5050/syncer/target/synchronize_receiver"></div>
         </div>
 
-    </body>
+
+
+        <div class="field">
+          <p>Press this button to start synchronization</p>
+          
+          <input type="submit" class="context" name="form.button.Synchronize" value="Synchronize"/>
+          <input type="submit" class="context" name="form.button.Status" value="Show Status"/>
+
+        </div>
+      </form>
+    </fieldset>
+
+  </div>
+
+</body>
 </html>

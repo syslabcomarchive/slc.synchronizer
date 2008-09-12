@@ -1,20 +1,32 @@
 <configure xmlns="http://namespaces.zope.org/zope"
            xmlns:browser="http://namespaces.zope.org/browser"
-           xmlns:five="http://namespaces.zope.org/five">
-
-
+           xmlns:five="http://namespaces.zope.org/five"
+           xmlns:xmlrpc="http://namespaces.zope.org/xmlrpc">
+    
+    <include package="zope.app.publisher.xmlrpc" file="meta.zcml" />
+    
     <browser:page
         for="Products.Archetypes.interfaces.IBaseObject"
         name="synchronize_content"
         class=".synchronizer.Synchronizer"
         permission="zope2.View"
+        allowed_interface="..interfaces.ISynchronizer"
     />
     
     <browser:page
-        for="Products.Archetypes.interfaces.IBaseFolder"
+        for="*"
         name="synchronize_receiver"
         class=".receiver.Receiver"
         permission="zope2.View"
+        allowed_interface="..interfaces.IReceiver"
     />    
+
+    <!--xmlrpc:view
+        name="synchronize_receiver"
+        for="*"
+        permission="cmf.ManagePortal"
+        methods="getSyncStatus syncObject"
+        class=".receiver.Receiver" 
+       /--> 
 
 </configure>

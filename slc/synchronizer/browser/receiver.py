@@ -5,22 +5,24 @@ from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFCore.utils import getToolByName
 from slc.synchronizer.interfaces import IReceiver, IUIDMappingStorage
+#from zope.app.publisher.xmlrpc import MethodPublisher, XMLRPCView
 
 class InvalidCatalogResponseError:
     pass
+
+
 
 class Receiver(BrowserView):
     """ 
     """
     implements(IReceiver)
-    
-    
+
     def _get_obj_by_remote_uid(self, site_id, remote_uid):
 
         storage = queryUtility(IUIDMappingStorage)
         local_uid = storage.get(site_id, remote_uid)
 
-        uid_cat = self.context.uid_catalog
+        uid_cat = self.context.portal_catalog
         res = uid_cat(UID=local_uid)
         if len(res) == 0:
             return None
@@ -31,12 +33,15 @@ class Receiver(BrowserView):
             raise InvalidCatalogResponseError
         return brain        
     
-    def getSyncStatus(self, site_id, remote_uid):
+    def getSyncStatus(self, site_id='', remote_uid=''):
         """ return status about last syndication """
-
-        brain = self._get_obj_by_remote_uid(site_id, remote_uid)
-        
-        return brain and brain.ModificationDate or brain
+        try:
+            brain = self._get_obj_by_remote_uid(site_id, remote_uid)
+        except InvalidCatalogResponseError:
+            return (-1, -1)
+        if brain is None:
+            return (-1, -1)
+        return (brain.ModificationDate, brain.getURL())
 
     def syncObject(self, portal_type, data={}, site_id='', remote_uid=None, translation_reference_uid=None):
         """ check if an object to the given remote_uid exists
@@ -52,7 +57,13 @@ class Receiver(BrowserView):
             # adding new object
             _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
             ob = getattr(self.context, _)
-            ob.processForm(data=1, metadata=1, values=data)
+            newdata = data.copy()
+            for i in data.keys():
+                if data[i]=="[[None]]":
+                    newdata[i] = None
+                if i in ['creation_date', 'modification_date']:
+                    del newdata[i]
+            ob.processForm(data=1, metadata=1, values=newdata)
             storage.add(site_id, remote_uid, ob.UID())
             return "Object created successfully", ob.absolute_url()
             

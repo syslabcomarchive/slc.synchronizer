@@ -50,6 +50,12 @@ class IUIDMappingStorage(Interface):
 class ISynchronizer(Interface):
     """ Interface for synchronization functionality """
 
+    def getSyncStatus(site_id, remote_uid):
+        """ looks up the remote uid in the local utility to get the local uid.
+            resolves the object using the local uid
+            returns the modification date of the referenced object or None, if no such object exists
+            as well as the link of the object
+        """
 
 class IDataExtractor(Interface):
     """ Interface for an adapter that extracts the content of object and returns
