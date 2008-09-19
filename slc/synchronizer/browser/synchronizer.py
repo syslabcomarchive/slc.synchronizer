@@ -3,7 +3,7 @@ from zope.interface import implements
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFCore.utils import getToolByName
-from slc.synchronizer.interfaces import ISynchronizer, IAccessStorage
+from slc.synchronizer.interfaces import ISynchronizer, IAccessStorage, IDataExtractor
 from xmlrpclib import ServerProxy
 from zope.component import queryUtility
 from persistent import Persistent
@@ -45,9 +45,10 @@ class Synchronizer(BrowserView):
         if R.has_key('savecredentials') and R.get('savecredentials', '') != '':
             self._save_credentials()
             
-        if R.has_key('form.button.Synchronize'):            
+        if R.has_key('form.button.Synchronize'):
+            data = IDataExtractor(self.context)()                        
             self.syncObject(self.context.portal_type, 
-                            self.get_data(), 
+                            data, 
                             remote_uid=self.context.UID(), 
                             translation_reference_uid=self.get_trans())
         return self.template() 
@@ -74,16 +75,16 @@ class Synchronizer(BrowserView):
         return ''
         
         
-    def get_data(self):
-        data = {}
-        ## XXX: here we have to use an adapter
-        schema = self.context.Schema()
-        for i in schema.keys():
-            value = self.context.getField(i).getAccessor(self.context)()
-            if value is None:
-                value = '[[None]]'
-            data[i] = value
-        return data
+#    def get_data(self):
+#        data = {}
+#        ## XXX: here we have to use an adapter
+#        schema = self.context.Schema()
+#        for i in schema.keys():
+#            value = self.context.getField(i).getAccessor(self.context)()
+#            if value is None:
+#                value = '[[None]]'
+#            data[i] = value
+#        return data
     
     def default_credentials(self):
         """ called by the form it checks if there is a credentials field in the request. 
