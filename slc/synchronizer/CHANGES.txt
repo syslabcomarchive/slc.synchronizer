@@ -1,0 +1,8 @@
+Todo
+
+    * allow to remove credentials again
+
+1.0b2
+
+    * Can synchronize basic atdocuments
+    * support for credentials, remembers credential keys annotated on objects
