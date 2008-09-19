@@ -4,8 +4,10 @@ from zope.component import queryUtility
 from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFCore.utils import getToolByName
-from slc.synchronizer.interfaces import IReceiver, IUIDMappingStorage
+from slc.synchronizer.interfaces import IReceiver, IUIDMappingStorage, IObjectFinder
 #from zope.app.publisher.xmlrpc import MethodPublisher, XMLRPCView
+
+UNWANTED_ATTRS = ['creation_date', 'modification_date']
 
 class InvalidCatalogResponseError:
     pass
@@ -49,29 +51,32 @@ class Receiver(BrowserView):
             update its data using the data mapping
             returns a feedback message and the link of the object in question
         """
-        brain = self._get_obj_by_remote_uid(site_id, remote_uid)
-
-        storage = queryUtility(IUIDMappingStorage)
 
         newdata = data.copy()
         for i in data.keys():
             if data[i]=="[[None]]":
                 newdata[i] = None
-            if i in ['creation_date', 'modification_date']:
+            if i in UNWANTED_ATTRS:
                 del newdata[i]
 
+        brain = self._get_obj_by_remote_uid(site_id, remote_uid)
+        storage = queryUtility(IUIDMappingStorage)
         
         if brain is None:
-            # adding new object
-            try:
+            # There is no matching object in our registry. If you want to try to match 
+            # an existing object based on whatever criteria to avoid dublettes, you can 
+            # use the following hook by providing your own utility to find an object to use
+            finder = queryUtility(IObjectFinder)
+            ob = finder(data)
+
+            # nothing found, add a new object
+            if ob is None:
                 _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
                 ob = getattr(self.context, _)
-                ob.processForm(data=1, metadata=1, values=newdata)
-                storage.add(site_id, remote_uid, ob.UID())
-                return "Object created successfully", ob.absolute_url()
-            except Exception, e:
-                return "Error: %s" % str(e)
-            
+                
+            ob.processForm(data=1, metadata=1, values=newdata)
+            storage.add(site_id, remote_uid, ob.UID())
+            return "Object created successfully", ob.absolute_url()
         else:
             # editing existing object
             ob = brain.getObject()

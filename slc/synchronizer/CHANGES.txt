@@ -1,7 +1,8 @@
 Todo
 
     * allow to remove credentials again
-
+    * cleanup of the uid registry when objects get deleted
+    
 1.0b2
 
     * Can synchronize basic atdocuments

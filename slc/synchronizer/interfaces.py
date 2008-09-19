@@ -85,3 +85,10 @@ class IAccessStorage(Interface):
 
     def __iter__():
         """Iterate over all existing creds."""        
+        
+        
+class IObjectFinder(Interface):
+    """ match an object based on the given data """
+    
+    def __call__(data):
+        """ tries to find an object based on some algorithms """        

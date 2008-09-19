@@ -5,4 +5,7 @@
     <adapter 
         factory=".DataExtractor.BaseDataExtractor" />
 
+    <utility factory=".object_finder.ObjectFinder" />
+
+
 </configure>
