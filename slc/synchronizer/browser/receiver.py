@@ -52,17 +52,19 @@ class Receiver(BrowserView):
         brain = self._get_obj_by_remote_uid(site_id, remote_uid)
 
         storage = queryUtility(IUIDMappingStorage)
+
+        newdata = data.copy()
+        for i in data.keys():
+            if data[i]=="[[None]]":
+                newdata[i] = None
+            if i in ['creation_date', 'modification_date']:
+                del newdata[i]
+
         
         if brain is None:
             # adding new object
             _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
             ob = getattr(self.context, _)
-            newdata = data.copy()
-            for i in data.keys():
-                if data[i]=="[[None]]":
-                    newdata[i] = None
-                if i in ['creation_date', 'modification_date']:
-                    del newdata[i]
             ob.processForm(data=1, metadata=1, values=newdata)
             storage.add(site_id, remote_uid, ob.UID())
             return "Object created successfully", ob.absolute_url()
@@ -70,7 +72,7 @@ class Receiver(BrowserView):
         else:
             # editing existing object
             ob = brain.getObject()
-            ob.processForm(data=1, metadata=1, values=data)
+            ob.processForm(data=1, metadata=1, values=newdata)
             return "Object modified successfully", ob.absolute_url()
                              
 
