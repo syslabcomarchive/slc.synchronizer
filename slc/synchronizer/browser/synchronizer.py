@@ -9,6 +9,7 @@ from zope.component import queryUtility
 from persistent import Persistent
 from zope.annotation.interfaces import IAnnotations
 from AccessControl import Unauthorized
+from DateTime import DateTime
 
 #XXX: Should also work without Linguaplone
 try:
@@ -160,6 +161,18 @@ class Synchronizer(BrowserView):
         """
         return "/".join(self.context.portal_url.getPortalObject().getPhysicalPath())
 
+    def getReferences(self):
+        """ retrieve all objects which are referenced by this object
+        """
+        pw = getToolByName(self.context, 'portal_workflow')
+        fields = self.context.Schema().fields()
+        for field in fields:
+            fname = field.getName()
+            ftype = field.getType()
+            if ftype == 'Products.Archetypes.Field.ReferenceField':
+                for item in field.getAccessor(self.context)():
+                    yield (item, pw.getCatalogVariablesFor(item).get('review_state', ''), fname)
+                    
 
     def getSyncStatus(self):
         """ return status about last synchronization """
@@ -171,6 +184,8 @@ class Synchronizer(BrowserView):
             syncstat = self.rpc.getSyncStatus(self.getSiteId(), self.context.UID())
             if syncstat[1]==-1:
                 syncstat[1]=''
+            if syncstat[0]!=-1:
+                syncstat[0] = DateTime(syncstat[0])
         except Unauthorized, uae:
             return [-1, 'Unauthorized: %s'%str(e)]
         except Exception, e:

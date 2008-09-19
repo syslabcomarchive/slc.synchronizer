@@ -7,47 +7,34 @@
   <div metal:fill-slot="main" 
        id="synchronizerForm"
        tal:define="sync_status view/getSyncStatus;
-                   remote_modification python:sync_status[0];
+                   remote_modification python:sync_status[0]==-1 and '--' or sync_status[0];
                    remote_url python:sync_status[1]">
   
     <h1 class="documentFirstHeading">Synchronize data</h1>
 
     <p>Synchronize data using this form.</p>
 
-    <form method="get" 
+    <form method="post" 
           tal:attributes="action string:${context/absolute_url}/${view/__name__}">
 
  
 
+    <h3>Synchronise the current object...</h3>
+
     <fieldset>
-
-      <h3>Synchronise the current object...</h3>
-
-        <div class="field">
-          <label>Title</label>
-          <div><span tal:replace="here/Title"/></div>
-        </div>
+        <legend>Sync this...</legend>
 
         <div class="field">
-          <label>Type</label>
-          <div><span tal:replace="here/portal_type"/></div>
+            <img tal:attributes="src here/icon" /> 
+            <span tal:replace="here/Title"/> 
+            (<span tal:replace="here/getId"/>) 
+            <span class="documentByLine">
+            - modified: <span tal:replace="python:toLocalizedTime(here.modified(), long_format=1)"/>
+            - remote: <span tal:replace="python:toLocalizedTime(remote_modification, long_format=1)"/>
+            </span>
+            
         </div>
-
-        <div class="field">
-          <label>Available in the following languages</label>
-          <div><span tal:replace="here/getTranslations | here/Language |string:Neutral"/></div>
-        </div>
-
-        <div class="field">
-          <label>Last local modification date</label>
-          <div><span tal:replace="python:toLocalizedTime(here.modified(), long_format=1)"/></div>
-        </div>
-
-        <div class="field">
-          <label>Last remote modification date</label>
-          <div><span tal:replace="python:remote_modification==-1 and '--' or remote_modification"/></div>
-        </div>
-
+        
         <div class="field">
           <label>Address of the remote object</label>
           <div>
@@ -55,11 +42,84 @@
               <span tal:condition="not:remote_url" i18n:translate="">--</span>
           </div>
         </div>
+        
+        <fieldset>
+            <legend>Connected Translations and Referenced Objects</legend>
+            
+            <div class="field"
+                 tal:define="translations python:here.getTranslations()">
+                <label>Translations</label>
+                <ul>
+                <tal:repeat repeat="lang translations/keys">
+                    <li tal:condition="python:lang != here.Language()"
+                        tal:define="item python:translations[lang][0]; wfstate python:translations[lang][1]">
+    
+                        <input type="checkbox" 
+                               tal:attributes="name python:'also-%s'%item.UID()" 
+                               checked="checked">
+                        <img tal:attributes="src item/icon" /> 
+                        [<span tal:replace="lang"/>]
+                        <a tal:attributes="href item/absolute_url; 
+                                           class string:state-${wfstate} url" 
+                           tal:content="item/Title"/> 
+                        <span class="documentByLine">
+                        - <span tal:replace="python:toLocalizedTime(item.modified(), long_format=1)"/>
+                        </span>
+                    </li>
+                </tal:repeat>
+                </ul>
+            </div>
+    
+            <div class="field"
+                 tal:define="references view/getReferences">
+                <label>Referenced Objects</label>
+                <ul>
+                <tal:repeat repeat="ref references">
+                    <li tal:define="item python:ref[0]; wfstate python:ref[1]; refname python:ref[2]">
+    
+                        <input type="checkbox" 
+                               tal:attributes="name python:'also-%s'%item.UID()" 
+                               checked="checked">
+                        <img tal:attributes="src item/icon" /> 
+                        [<span tal:replace="refname"/>]
+                        <a tal:attributes="href item/absolute_url; 
+                                           class string:state-${wfstate} url" 
+                           tal:content="item/Title"/> 
+                        <span class="documentByLine">
+                        - <span tal:replace="python:toLocalizedTime(item.modified(), long_format=1)"/>
+                        </span>
+    
+                    </li>
+                </tal:repeat>
+                </ul>
+            </div>
+        
+        </fieldset>
+
+        <!--div class="field" 
+             tal:define="langs here/getTranslations | python:[here.Language()];
+                         pl here/portal_languages/getAvailableLanguageInformation">
+                         
+          <label>Available in the following languages</label>
+
+          <div>
+            <tal:repeat repeat="lang langs">
+                <span tal:replace="python:pl.get(lang)['native']" 
+                /><span tal:condition="not:repeat/lang/end" tal:omit-tag="">,</span>
+            </tal:repeat>
+          </div>
+
+        </div-->
+
+    </fieldset>
 
 
 
-      <h3>to...</h3>
+    <h3>To...</h3>
 
+      <fieldset>
+        <legend>Sync target</legend>
+        
         <div class="field">
             <label>Pick existing credentials</label>
             <div>
@@ -75,45 +135,48 @@
             </div>
         </div>
 
+        <fieldset>
+        
+            <legend>or specify new credentials</legend>
 
-        <div class="field">
-            <label>Target location</label>
-            <div>
-                <input type="text" 
-                       name="server" 
-                       size="80"         
-                       value="http://devel:5050/syncer/target/">
+            <div class="field">
+                <label>Target location</label>
+                <div>
+                    <input type="text" 
+                           name="server" 
+                           size="80"         
+                           value="http://devel:5050/syncer/target/">
+                </div>
             </div>
-        </div>
-
-        <div class="field">
-            <label>Username</label>
-            <div>
-                <input type="text" 
-                       name="username" 
-                       size="20"         
-                       value="admin">
+    
+            <div class="field">
+                <label>Username</label>
+                <div>
+                    <input type="text" 
+                           name="username" 
+                           size="20"         
+                           value="admin">
+                </div>
             </div>
-        </div>
-
-        <div class="field">
-            <label>Password</label>
-            <div>
-                <input type="password" 
-                       name="password" 
-                       size="20"         
-                       value="">
+    
+            <div class="field">
+                <label>Password</label>
+                <div>
+                    <input type="password" 
+                           name="password" 
+                           size="20"         
+                           value="">
+                </div>
             </div>
-        </div>
-
-        <div class="field">
-            <label>Save credentials for later use</label>
-            <div>
-                <input type="checkbox" 
-                       name="savecredentials">
+    
+            <div class="field">
+                <label>Save credentials for later use</label>
+                <div>
+                    <input type="checkbox" 
+                           name="savecredentials">
+                </div>
             </div>
-        </div>
-
+        </fieldset>
 
         <div class="field">
           
