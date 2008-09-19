@@ -173,14 +173,16 @@ class Synchronizer(BrowserView):
                     yield (item, pw.getCatalogVariablesFor(item).get('review_state', ''), fname)
                     
 
-    def getSyncStatus(self):
+    def getSyncStatus(self, uid=''):
         """ return status about last synchronization """
+        if not uid:
+            uid = self.context.UID()
         targeturl = self._generate_target_url()
         if not targeturl:
             return [-1, '']
                     
         try:
-            syncstat = self.rpc.getSyncStatus(self.getSiteId(), self.context.UID())
+            syncstat = self.rpc.getSyncStatus(self.getSiteId(), uid)
             if syncstat[1]==-1:
                 syncstat[1]=''
             if syncstat[0]!=-1:
