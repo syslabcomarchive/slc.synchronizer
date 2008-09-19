@@ -21,12 +21,5 @@
         allowed_interface="..interfaces.IReceiver"
     />    
 
-    <!--xmlrpc:view
-        name="synchronize_receiver"
-        for="*"
-        permission="cmf.ManagePortal"
-        methods="getSyncStatus syncObject"
-        class=".receiver.Receiver" 
-       /--> 
 
 </configure>

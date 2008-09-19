@@ -4,38 +4,133 @@
     i18n:domain="plone">
 
 <body>
-  <div metal:fill-slot="main" id="synchronizerForm">
+  <div metal:fill-slot="main" 
+       id="synchronizerForm"
+       tal:define="sync_status view/getSyncStatus;
+                   remote_modification python:sync_status[0];
+                   remote_url python:sync_status[1]">
+  
     <h1 class="documentFirstHeading">Synchronize data</h1>
 
     <p>Synchronize data using this form.</p>
 
+    <form method="get" 
+          tal:attributes="action string:${context/absolute_url}/${view/__name__}">
 
-    <div>
-        <h2>Current sync status</h2>
-        <div tal:content="view/getSyncStatus"></div>
-    </div>
-        
+ 
 
     <fieldset>
-      <label>Synchronize</label>
-      <form method="get" 
-              tal:attributes="action string:${context/absolute_url}/${view/__name__}">
+
+      <h3>Synchronise the current object...</h3>
+
         <div class="field">
-          <label>Server</label>
-          <div><input type="text" name="server" size="80" value="http://admin:admin@devel:5050/syncer/target/synchronize_receiver"></div>
+          <label>Title</label>
+          <div><span tal:replace="here/Title"/></div>
+        </div>
+
+        <div class="field">
+          <label>Type</label>
+          <div><span tal:replace="here/portal_type"/></div>
+        </div>
+
+        <div class="field">
+          <label>Available in the following languages</label>
+          <div><span tal:replace="here/getTranslations | here/Language |string:Neutral"/></div>
+        </div>
+
+        <div class="field">
+          <label>Last local modification date</label>
+          <div><span tal:replace="python:toLocalizedTime(here.modified(), long_format=1)"/></div>
+        </div>
+
+        <div class="field">
+          <label>Last remote modification date</label>
+          <div><span tal:replace="python:remote_modification==-1 and '--' or remote_modification"/></div>
+        </div>
+
+        <div class="field">
+          <label>Address of the remote object</label>
+          <div>
+              <a tal:condition="remote_url" tal:attributes="href remote_url" tal:content="remote_url"/>
+              <span tal:condition="not:remote_url" i18n:translate="">No server</span>
+          </div>
         </div>
 
 
 
+      <h3>to...</h3>
+
         <div class="field">
-          <p>Press this button to start synchronization</p>
+            <label>Pick existing credentials</label>
+            <div>
+                <select name="credentials">
+                    <option>Pick credentials...</option>
+                    <tal:repeat repeat="cred view/credentials">
+                        <option tal:define="credstr python:'%s@%s' % (cred[1], cred[0])"
+                                tal:content="credstr" 
+                                tal:attributes="value credstr;
+                                                selected python:request.get('credentials', '')==credstr and 'selected' or ''" />
+                    </tal:repeat>
+                </select>
+            </div>
+        </div>
+
+
+        <div class="field">
+            <label>Target location</label>
+            <div>
+                <input type="text" 
+                       name="server" 
+                       size="80"         
+                       value="http://devel:5050/syncer/target/">
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Username</label>
+            <div>
+                <input type="text" 
+                       name="username" 
+                       size="20"         
+                       value="admin">
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Password</label>
+            <div>
+                <input type="password" 
+                       name="password" 
+                       size="20"         
+                       value="">
+            </div>
+        </div>
+
+        <div class="field">
+            <label>Save credentials for later use</label>
+            <div>
+                <input type="checkbox" 
+                       name="savecredentials">
+            </div>
+        </div>
+
+
+        <div class="field">
           
-          <input type="submit" class="context" name="form.button.Synchronize" value="Synchronize"/>
-          <input type="submit" class="context" name="form.button.Status" value="Show Status"/>
+          <input type="submit" 
+                 class="context" 
+                 name="form.button.Synchronize" 
+                 value="Synchronize now"/>
+
+          <input type="submit" 
+                 class="context" 
+                 name="form.button.Status" 
+                 value="Show Status"/>
 
         </div>
-      </form>
+        
     </fieldset>
+    </form>
 
   </div>
 

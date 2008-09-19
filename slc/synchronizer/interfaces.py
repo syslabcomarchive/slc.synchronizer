@@ -63,3 +63,25 @@ class IDataExtractor(Interface):
     """
     
     
+class IAccessStorage(Interface):
+    """Stores access credentials in an insecure manner into the portal.
+    """
+
+    def add(path, url, login):
+        """registers a password for an url and a login 
+        """
+        
+    def remove(url, login):
+        """Forget the credentials
+        """
+
+    def has_path(url, login):
+        """Check if we have a registration
+        """
+        
+    def get(url, login, default=None):
+        """get the password by url and login 
+        """
+
+    def __iter__():
+        """Iterate over all existing creds."""        

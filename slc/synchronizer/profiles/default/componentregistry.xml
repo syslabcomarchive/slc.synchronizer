@@ -4,7 +4,9 @@
  <utilities>
   <utility
      interface="slc.synchronizer.interfaces.IUIDMappingStorage"
-     factory="slc.synchronizer.uid_mapper.UIDMappingStorage"/>
+     factory="slc.synchronizer.adapters.uid_mapper.UIDMappingStorage"/>
+  <utility
+     interface="slc.synchronizer.interfaces.IAccessStorage"
+     factory="slc.synchronizer.adapters.access_storage.AccessStorage"/>
  </utilities>
 </componentregistry>
-     
