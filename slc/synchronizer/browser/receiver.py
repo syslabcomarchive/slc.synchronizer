@@ -63,11 +63,14 @@ class Receiver(BrowserView):
         
         if brain is None:
             # adding new object
-            _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
-            ob = getattr(self.context, _)
-            ob.processForm(data=1, metadata=1, values=newdata)
-            storage.add(site_id, remote_uid, ob.UID())
-            return "Object created successfully", ob.absolute_url()
+            try:
+                _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
+                ob = getattr(self.context, _)
+                ob.processForm(data=1, metadata=1, values=newdata)
+                storage.add(site_id, remote_uid, ob.UID())
+                return "Object created successfully", ob.absolute_url()
+            except Exception, e:
+                return "Error: %s" % str(e)
             
         else:
             # editing existing object

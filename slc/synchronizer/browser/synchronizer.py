@@ -42,16 +42,25 @@ class Synchronizer(BrowserView):
     def __call__(self):
         """ handle the form input
         """
-        R = self.context.REQUEST
+        context = Acquisition.aq_inner(self.context)
+        R = context.REQUEST        
+        pc = getToolByName(context, 'portal_catalog')
         if R.has_key('savecredentials') and R.get('savecredentials', '') != '':
             self._save_credentials()
             
         if R.has_key('form.button.Synchronize'):
-            data = IDataExtractor(self.context)()                        
-            self.syncObject(self.context.portal_type, 
-                            data, 
-                            remote_uid=self.context.UID(), 
-                            translation_reference_uid=self.get_trans())
+            results = pc(Language='all', UID=R.get('also'))
+
+            print "also:", R.get('also')
+
+            obs = [x.getObject() for x in results]
+            obs.append(context)
+            for ob in obs:
+                data = IDataExtractor(ob)()                        
+                self.syncObject(ob.portal_type, 
+                                data, 
+                                remote_uid=ob.UID(), 
+                                translation_reference_uid=self._get_trans(ob))
         return self.template() 
 
 
@@ -67,25 +76,15 @@ class Synchronizer(BrowserView):
         storage.add(server, username, password)                
 
 
-    def get_trans(self):        
-        if not HAVE_LP or not ITranslatable.implementedBy(self.context):
+    def _get_trans(self, ob):
+        if not HAVE_LP or not ITranslatable.implementedBy(ob):
             return ''
-        can = self.context.getCanonical()
-        if can != self.context:
+        can = ob.getCanonical()
+        if can != ob:
             return can.UID()
         return ''
         
         
-#    def get_data(self):
-#        data = {}
-#        ## XXX: here we have to use an adapter
-#        schema = self.context.Schema()
-#        for i in schema.keys():
-#            value = self.context.getField(i).getAccessor(self.context)()
-#            if value is None:
-#                value = '[[None]]'
-#            data[i] = value
-#        return data
     
     def default_credentials(self):
         """ called by the form it checks if there is a credentials field in the request. 

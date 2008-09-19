@@ -12,7 +12,10 @@
   
     <h1 class="documentFirstHeading">Synchronize data</h1>
 
-    <p>Synchronize data using this form.</p>
+    <p>Using this form you can synchronize the data of this object and its 
+    translations and other referenced objects to a remote server. You have to 
+    specify a target url (usually a folder on a remote plone site) and a 
+    login and a password.</p>
 
     <form method="post" 
           tal:attributes="action string:${context/absolute_url}/${view/__name__}">
@@ -22,7 +25,7 @@
     <h3>Synchronise the current object...</h3>
 
     <fieldset>
-        <legend>Sync this...</legend>
+        <legend>Sync this object...</legend>
 
         <div class="field">
             <img tal:attributes="src here/icon" /> 
@@ -54,8 +57,8 @@
                     <li tal:condition="python:lang != here.Language()"
                         tal:define="item python:translations[lang][0]; wfstate python:translations[lang][1]">
     
-                        <input type="checkbox" 
-                               tal:attributes="name python:'also-%s'%item.UID()" 
+                        <input type="checkbox" name="also:list"
+                               tal:attributes="value item/UID" 
                                checked="checked">
                         <img tal:attributes="src item/icon" /> 
                         [<span tal:replace="lang"/>]
@@ -77,8 +80,8 @@
                 <tal:repeat repeat="ref references">
                     <li tal:define="item python:ref[0]; wfstate python:ref[1]; refname python:ref[2]">
     
-                        <input type="checkbox" 
-                               tal:attributes="name python:'also-%s'%item.UID()" 
+                        <input type="checkbox" name="also:list"
+                               tal:attributes="value item/UID" 
                                checked="checked">
                         <img tal:attributes="src item/icon" /> 
                         [<span tal:replace="refname"/>]
@@ -115,10 +118,10 @@
 
 
 
-    <h3>To...</h3>
+    <h3>...to...</h3>
 
       <fieldset>
-        <legend>Sync target</legend>
+        <legend>target server</legend>
         
         <div class="field">
             <label>Pick existing credentials</label>
@@ -188,7 +191,7 @@
           <input type="submit" 
                  class="context" 
                  name="form.button.Status" 
-                 value="Show Status"/>
+                 value="Update Status"/>
 
         </div>
         
