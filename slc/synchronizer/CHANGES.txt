@@ -2,8 +2,11 @@ Todo
 
     * allow to remove credentials again
     * cleanup of the uid registry when objects get deleted
+    * implement a read only/read write policy for matched objects sync
     
 1.0b2
 
     * Can synchronize basic atdocuments
     * support for credentials, remembers credential keys annotated on objects
+    * support for syncing related objects and translations
+    

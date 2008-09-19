@@ -5,7 +5,6 @@ from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFCore.utils import getToolByName
 from slc.synchronizer.interfaces import IReceiver, IUIDMappingStorage, IObjectFinder
-#from zope.app.publisher.xmlrpc import MethodPublisher, XMLRPCView
 
 UNWANTED_ATTRS = ['creation_date', 'modification_date']
 
