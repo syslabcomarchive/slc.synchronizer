@@ -50,6 +50,9 @@
                 <label>Translations</label>
                 <ul>
                 <tal:repeat repeat="lang translations/keys">
+                    <li tal:condition="python:len(translations.keys())==1">
+                        <i>No translations present</i>
+                    </li>
                     <li tal:condition="python:lang != here.Language()"
                         tal:define="item python:translations[lang][0]; 
                                     wfstate python:translations[lang][1];
@@ -82,6 +85,9 @@
                  tal:define="references view/getReferences">
                 <label>Referenced Objects</label>
                 <ul>
+                    <li tal:condition="not:references">
+                        <i>No references present</i>
+                    </li>
                 <tal:repeat repeat="ref references">
                     <li tal:define="item python:ref[0]; 
                                     wfstate python:ref[1]; 

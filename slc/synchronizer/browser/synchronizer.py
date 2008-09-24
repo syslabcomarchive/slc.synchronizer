@@ -59,6 +59,12 @@ class Synchronizer(BrowserView):
             obs = [x.getObject() for x in results]
             obs.append(context)
             for ob in obs:
+                # Here the magic happens. IDataExtractor reads all 
+                # attributes from the object and modifies them so that
+                # the target site can create an object from them
+                # This adapter needs to make sure, the contract of the 
+                # targetsite is fulfilled. To be able to do that, the adapter
+                # might need to be site specific.
                 data = IDataExtractor(ob)()                        
                 syncstatus = self.syncObject(ob.portal_type, 
                                              data, 
@@ -175,13 +181,14 @@ class Synchronizer(BrowserView):
         """
         pw = getToolByName(self.context, 'portal_workflow')
         fields = self.context.Schema().fields()
+        refs = []
         for field in fields:
             fname = field.getName()
             ftype = field.getType()
             if ftype == 'Products.Archetypes.Field.ReferenceField':
                 for item in field.getAccessor(self.context)():
-                    yield (item, pw.getCatalogVariablesFor(item).get('review_state', ''), fname)
-                    
+                    refs.append((item, pw.getCatalogVariablesFor(item).get('review_state', ''), fname))
+        return refs                    
 
     def getSyncStatus(self, uid=''):
         """ return status about last synchronization """
@@ -209,7 +216,10 @@ class Synchronizer(BrowserView):
         ann = IAnnotations(self.context)
         return ann.setdefault(ANNOKEY, SyncSettings())
 
-    def syncObject(self, portal_type, data={}, remote_uid=None, translation_reference_uid=None):
+    def syncObject(self, portal_type, 
+                         data={}, 
+                         remote_uid=None, 
+                         translation_reference_uid=None):
         """ check if an object to the given remote_uid exists
             if not, create one using the portal_type
             update its data using the data mapping
