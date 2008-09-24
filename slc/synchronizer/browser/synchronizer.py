@@ -49,6 +49,9 @@ class Synchronizer(BrowserView):
             self._save_credentials()
             
         if R.has_key('form.button.Synchronize'):
+            putil = getToolByName(context, 'plone_utils')
+            log = putil.addPortalMessage
+
             results = pc(Language='all', UID=R.get('also'))
 
             print "also:", R.get('also')
@@ -57,10 +60,17 @@ class Synchronizer(BrowserView):
             obs.append(context)
             for ob in obs:
                 data = IDataExtractor(ob)()                        
-                self.syncObject(ob.portal_type, 
-                                data, 
-                                remote_uid=ob.UID(), 
-                                translation_reference_uid=self._get_trans(ob))
+                syncstatus = self.syncObject(ob.portal_type, 
+                                             data, 
+                                             remote_uid=ob.UID(), 
+                                             translation_reference_uid=self._get_trans(ob))
+                if syncstatus[0]==0:
+                    log("%s - URL: %s" %(syncstatus[1], syncstatus[2]), 'info')
+                elif syncstatus[0]==1:
+                    log("%s - URL: %s" %(syncstatus[1], syncstatus[2]), 'warning')
+                else:
+                    log("%s - URL: %s" %(syncstatus[1], syncstatus[2]), 'error')
+                                        
         return self.template() 
 
 
@@ -107,14 +117,14 @@ class Synchronizer(BrowserView):
         if not server or not username or not password:
             storage = queryUtility(IAccessStorage)
             if R.get('credentials', '') != '':
-                login, server = R['credentials'].split('@', 1)
-                password = storage.get(server, login, '')
+                username, server = R['credentials'].split('@', 1)
+                password = storage.get(server, username, '')
             elif self.syncsettings.credentials != '':
-                login, server = self.syncsettings.credentials.split('@', 1)
-                password = storage.get(server, login, '')                
+                username, server = self.syncsettings.credentials.split('@', 1)
+                password = storage.get(server, username, '')                
             else:
                 return '', '', ''
-        return server, login, password
+        return server, username, password
             
             
     def _generate_target_url(self):
@@ -206,7 +216,6 @@ class Synchronizer(BrowserView):
             returns a feedback message and the link of the object in question
         """
         syncstat = self.rpc.syncObject(portal_type, data, self.getSiteId(), remote_uid, translation_reference_uid)
-
         # if syncing was successful, remember the used credentials on this object
         server, login, password = self._get_credentials()
         if server and login:

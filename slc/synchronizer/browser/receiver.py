@@ -70,16 +70,19 @@ class Receiver(BrowserView):
 
             # nothing found, add a new object
             if ob is None:
-                _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
+                try:
+                    _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
+                except ValueError, ve:
+                    return 1, str(ve), ''
                 ob = getattr(self.context, _)
                 
             ob.processForm(data=1, metadata=1, values=newdata)
             storage.add(site_id, remote_uid, ob.UID())
-            return "Object created successfully", ob.absolute_url()
+            return 0, "Object created successfully", ob.absolute_url()
         else:
             # editing existing object
             ob = brain.getObject()
             ob.processForm(data=1, metadata=1, values=newdata)
-            return "Object modified successfully", ob.absolute_url()
+            return 0, "Object modified successfully", ob.absolute_url()
                              
 
