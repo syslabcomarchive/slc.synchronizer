@@ -5,6 +5,7 @@ from Products.Five.browser import BrowserView
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFCore.utils import getToolByName
 from slc.synchronizer.interfaces import IReceiver, IUIDMappingStorage, IObjectFinder
+from types import *
 
 UNWANTED_ATTRS = ['creation_date', 'modification_date']
 
@@ -50,16 +51,31 @@ class Receiver(BrowserView):
             update its data using the data mapping
             returns a feedback message and the link of the object in question
         """
+        storage = queryUtility(IUIDMappingStorage)
 
         newdata = data.copy()
         for i in data.keys():
-            if data[i]=="[[None]]":
+            value = data[i]
+            if value=="[[None]]":
                 newdata[i] = None
             if i in UNWANTED_ATTRS:
                 del newdata[i]
-
+            # rewrite the referenced object UIDs using our local uid storage
+            if type(value) in [ListType, TupleType]:
+                newvals = []
+                for val in value:                    
+                    if storage.has_remote_uid(site_id, val):
+                        newvals.append(storage.get(site_id, val))
+                    else:
+                        newvals.append(val)
+                if type(value)==TupleType:
+                    newvals = tuple(newvals)
+                newdata[i] = newvals
+            else:            
+                if storage.has_remote_uid(site_id, value):
+                    newdata[i] = storage.get(site_id, value)
+            
         brain = self._get_obj_by_remote_uid(site_id, remote_uid)
-        storage = queryUtility(IUIDMappingStorage)
         
         if brain is None:
             # There is no matching object in our registry. If you want to try to match 
@@ -83,6 +99,7 @@ class Receiver(BrowserView):
             # editing existing object
             ob = brain.getObject()
             ob.processForm(data=1, metadata=1, values=newdata)
+            storage.add(site_id, remote_uid, ob.UID())
             return 0, "Object modified successfully", ob.absolute_url()
                              
 

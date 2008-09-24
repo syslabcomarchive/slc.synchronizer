@@ -15,7 +15,13 @@ class BaseDataExtractor(object):
         self.context = context
 
 
-    def __call__(self):
+    def portal_type(self):
+        """ return the objects portal_type. Can be overridden to synchronize 
+            to a different type"""
+        return self.context.portal_type
+
+
+    def data(self):
         data = dict()
         fields = self.context.Schema().fields()
         for field in fields:

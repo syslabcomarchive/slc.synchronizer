@@ -65,9 +65,9 @@ class Synchronizer(BrowserView):
                 # This adapter needs to make sure, the contract of the 
                 # targetsite is fulfilled. To be able to do that, the adapter
                 # might need to be site specific.
-                data = IDataExtractor(ob)()                        
-                syncstatus = self.syncObject(ob.portal_type, 
-                                             data, 
+                extractor = IDataExtractor(ob)
+                syncstatus = self.syncObject(extractor.portal_type(), 
+                                             extractor.data(), 
                                              remote_uid=ob.UID(), 
                                              translation_reference_uid=self._get_trans(ob))
                 if syncstatus[0]==0:
@@ -225,7 +225,10 @@ class Synchronizer(BrowserView):
             update its data using the data mapping
             returns a feedback message and the link of the object in question
         """
-        syncstat = self.rpc.syncObject(portal_type, data, self.getSiteId(), remote_uid, translation_reference_uid)
+        try:
+            syncstat = self.rpc.syncObject(portal_type, data, self.getSiteId(), remote_uid, translation_reference_uid)
+        except Exception, e:
+            return (2, str(e), '')
         # if syncing was successful, remember the used credentials on this object
         server, login, password = self._get_credentials()
         if server and login:

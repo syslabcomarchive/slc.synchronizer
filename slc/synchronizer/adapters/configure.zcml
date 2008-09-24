@@ -2,8 +2,7 @@
            xmlns:zcml="http://namespaces.zope.org/zcml"
            i18n_domain="kh3o">
 
-    <adapter 
-        factory=".DataExtractor.BaseDataExtractor" />
+    <adapter factory=".DataExtractor.BaseDataExtractor" />
 
     <utility factory=".object_finder.ObjectFinder" />
 
