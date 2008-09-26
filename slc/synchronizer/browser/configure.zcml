@@ -9,7 +9,7 @@
         for="Products.Archetypes.interfaces.IBaseObject"
         name="synchronize_content"
         class=".synchronizer.Synchronizer"
-        permission="zope2.View"
+        permission="cmf.ModifyPortalContent"
         allowed_interface="..interfaces.ISynchronizer"
     />
     
@@ -17,7 +17,7 @@
         for="*"
         name="synchronize_receiver"
         class=".receiver.Receiver"
-        permission="zope2.View"
+        permission="cmf.ModifyPortalContent"
         allowed_interface="..interfaces.IReceiver"
     />    
 
