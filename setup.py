@@ -15,9 +15,9 @@ setup(name='slc.synchronizer',
         "Topic :: Software Development :: Libraries :: Python Modules",
         ],
       keywords='',
-      author='Syslab.com',
+      author='Syslab.com GmbH',
       author_email='info@syslab.com',
-      url='http://www.syslab.com',
+      url='https://svn.plone.org/svn/collective/slc.synchronizer/trunk',
       license='GPL',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['slc'],
@@ -25,7 +25,6 @@ setup(name='slc.synchronizer',
       zip_safe=False,
       install_requires=[
           'setuptools',
-          # -*- Extra requirements: -*-
       ],
       entry_points="""
       # -*- Entry points: -*-
