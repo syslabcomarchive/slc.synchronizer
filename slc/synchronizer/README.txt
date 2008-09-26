@@ -24,3 +24,10 @@ its translations. It should be fairly straightforward to implement batched synch
 Also currently all content is synchronized into one fixed destination on the 
 server side. No structure is maintained. This feature may be added in the future though.
 
+
+
+Authors
+=======
+
+Wolfgang Thomas - thomas at syslab dot com
+Alexander Pilz  - pilz at syslab dot com
