@@ -6,6 +6,13 @@
 <body>
   <div metal:fill-slot="main" 
        id="synchronizerForm">
+   
+    <style type="text/css">
+        div.synced {background-color: lightgreen; }
+        div.unsynced {background-color: #eeeeee; }
+        li.synced{background-color: lightgreen; }
+        li.unsynced{background-color: #eeeeee; }
+    </style>
   
     <h1 class="documentFirstHeading">Synchronize data</h1>
 
@@ -25,15 +32,17 @@
         <legend>Sync this object...</legend>
 
         <div class="field" 
-             tal:define="sync_status python:view.getSyncStatus(uid=here.UID())">
+             tal:define="sync_status python:view.getSyncStatus(uid=here.UID())"
+             tal:attributes="class python:sync_status[0]==-1 and 'field unsynced' or 'field synced'">
             
             <img tal:attributes="src here/icon" /> 
             <span tal:replace="here/Title"/> 
             (<span tal:replace="here/getId"/>) 
+            <i tal:condition="python:sync_status[0]==-1">unsyncronized</i>
             <br/> 
             <span class="documentByLine">
             - modified: <span tal:replace="python:toLocalizedTime(here.modified(), long_format=1)"/>
-            - remote: <span tal:replace="python:toLocalizedTime(sync_status[0], long_format=1)"/>
+            - remote: <span tal:replace="python:sync_status[0]!=-1 and toLocalizedTime(sync_status[0], long_format=1) or '--'"/>
             <br>
             - Remote URL: <a tal:condition="python:sync_status[1]" 
                  tal:attributes="href python:sync_status[1]" 
@@ -56,7 +65,8 @@
                     <li tal:condition="python:lang != here.Language()"
                         tal:define="item python:translations[lang][0]; 
                                     wfstate python:translations[lang][1];
-                                    sync_status python:view.getSyncStatus(uid=item.UID())">
+                                    sync_status python:view.getSyncStatus(uid=item.UID())"
+                        tal:attributes="class python:sync_status[0]==-1 and 'unsynced' or 'synced'">
     
                         <input type="checkbox" name="also:list"
                                tal:attributes="value item/UID" 
@@ -66,10 +76,11 @@
                         <a tal:attributes="href item/absolute_url; 
                                            class string:state-${wfstate} url" 
                            tal:content="item/Title"/> 
+                        <i tal:condition="python:sync_status[0]==-1">unsyncronized</i>
                         <br/> 
                         <span class="documentByLine">
                         - <span tal:replace="python:toLocalizedTime(item.modified(), long_format=1)"/>
-                        - remote: <span tal:replace="python:toLocalizedTime(sync_status[0], long_format=1)"/> 
+                        - remote: <span tal:replace="python:sync_status[0]!=-1 and toLocalizedTime(sync_status[0], long_format=1) or '--'"/> 
                         <br>
                         - Remote URL: <a tal:condition="python:sync_status[1]" 
                              tal:attributes="href python:sync_status[1]" 
@@ -92,7 +103,8 @@
                     <li tal:define="item python:ref[0]; 
                                     wfstate python:ref[1]; 
                                     refname python:ref[2];
-                                    sync_status python:view.getSyncStatus(uid=item.UID())">
+                                    sync_status python:view.getSyncStatus(uid=item.UID())"
+                        tal:attributes="class python:sync_status[0]==-1 and 'unsynced' or 'synced'">
     
                         <input type="checkbox" name="also:list"
                                tal:attributes="value item/UID" 
@@ -102,10 +114,11 @@
                         <a tal:attributes="href item/absolute_url; 
                                            class string:state-${wfstate} url" 
                            tal:content="item/Title"/>
+                        <i tal:condition="python:sync_status[0]==-1">unsyncronized</i>
                         <br/> 
                         <span class="documentByLine">
                         - <span tal:replace="python:toLocalizedTime(item.modified(), long_format=1)"/>
-                        - remote: <span tal:replace="python:toLocalizedTime(sync_status[0], long_format=1)"/> 
+                        - remote: <span tal:replace="python:sync_status[0]!=-1 and toLocalizedTime(sync_status[0], long_format=1) or '--'"/> 
                         <br>
                         - Remote URL: <a tal:condition="python:sync_status[1]" 
                              tal:attributes="href python:sync_status[1]" 

@@ -54,7 +54,6 @@ class Synchronizer(BrowserView):
 
             results = pc(Language='all', UID=R.get('also'))
 
-            print "also:", R.get('also')
 
             obs = [x.getObject() for x in results]
             obs.append(context)
@@ -88,7 +87,6 @@ class Synchronizer(BrowserView):
         username = R.get('username', '')
         password = R.get('password', '')
         storage = queryUtility(IAccessStorage)
-        print "s, u, p", server, username, password
         storage.add(server, username, password)                
 
 
@@ -147,7 +145,6 @@ class Synchronizer(BrowserView):
 
         targeturl = "http://%s:%s@%s/synchronize_receiver" % (login, password, server[7:])
 
-        #print targeturl
         return targeturl
         
             

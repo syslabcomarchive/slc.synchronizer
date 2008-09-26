@@ -91,6 +91,8 @@ class Receiver(BrowserView):
                 except ValueError, ve:
                     return 1, str(ve), ''
                 ob = getattr(self.context, _)
+                # we send an id, we want it to stay this way!
+                ob._at_rename_after_creation = False
                 
             ob.processForm(data=1, metadata=1, values=newdata)
             storage.add(site_id, remote_uid, ob.UID())

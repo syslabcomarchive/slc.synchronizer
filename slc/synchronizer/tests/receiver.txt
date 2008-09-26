@@ -14,8 +14,8 @@ Every folderish object can be used as a bridgehead to call the synchronizer mech
 First a remote site will usually call getSyncStatus, so find out if an object
 already has been synced. We have not synced anything yet, so the return will be None
 
-    >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') is None
-    True
+    >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') 
+    (-1, -1)
     
 Next, we assume the receiver gets called with the data to add a new document. 
 Currently there are no translations for that document. It should return the link 
@@ -29,13 +29,15 @@ to the new object
     ...                              remote_uid='REMOTEUID', 
     ...                              translation_reference_uid=None)
     >>> result[0]
-    'Object created successfully'
+    0
     >>> result[1]
+    'Object created successfully'
+    >>> result[2]
     'http://nohost/plone/Members/test_user_1_/synctest'
 
 And finally the object has been created.
 
-    >>> obj_id = result[1].split('/')[-1]
+    >>> obj_id = result[2].split('/')[-1]
     >>> obj_id in self.folder.objectIds()
     True
 

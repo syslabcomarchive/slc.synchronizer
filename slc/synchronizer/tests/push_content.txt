@@ -7,11 +7,9 @@ This doctest gives an overview about pushing content to be synchronized.
 Setting up
 ----------
 
-Some necessary imports and initializations. E.g. we need to have a site-id so 
-that the receving end can indentify us:
+Some necessary imports and initializations. 
 
     >>> from DateTime import DateTime
-    >>> site_id = 'testing'
 
 Create a Document, which will be used for synching, remembering the UID and Create 
 some data, like title and description, which we can test against.
@@ -19,6 +17,7 @@ some data, like title and description, which we can test against.
 
     >>> _ = folder.invokeFactory(id='mydoc', type_name='Document')
     >>> doc = folder[_]
+    >>> doc._at_rename_after_creation = False
     >>> mydata = dict(id='mydoc', title='doctitle', description='docdescription')
     >>> doc.processForm(data=1, values=mydata)
     >>> doc.id
@@ -26,118 +25,28 @@ some data, like title and description, which we can test against.
     >>> doc_uid = doc.UID()
 
 
-Mockup class that provides interface functionality of the receiving end
-
-    >>> class XMLRPCProxy(object):
-    ...   UIDS = dict()
-    ...   def __init__(self, id):
-    ...     self.id = id
-    ...
-    ...   def getSyncStatus(self, site_id, remote_uid):
-    ...     """ looks up the remote uid in the local utility to get the local uid.
-    ...     resolves the object using the local uid
-    ...     returns the modification date of the referenced object or -1, if no such object exists
-    ...     as well as the link of the object"""
-    ...     return self.UIDS.get(remote_uid, (-1, -1))
-    ...
-    ...   def syncObject(self, portal_type, data={}, site_id=None, remote_uid=None, translation_reference_uid=None):
-    ...     """ check if an object to the given remote_uid exists
-    ...     if not, create one using the portal_type
-    ...     update its data using the data mapping
-    ...     returns a feedback message and the link of the object in question """
-    ...     if self.UIDS.has_key(remote_uid):
-    ...       msg = 'Object was modified'
-    ...       date = self.UIDS[remote_uid][0]
-    ...     else:
-    ...       msg = 'Object was created'
-    ...       date = 0
-    ...     link = 'http://www.mysite.com/%s/%s' %(portal_type, data['id'])
-    ...     # write the data to the uid-to-date-and-link-mapping, incementing the "date"
-    ...     self.UIDS[remote_uid] = (date + 1, link)
-    ...     return msg, link
-
-
-Testing the connection
-----------------------
-    
-Initialize the XMLRPCProxy mockup
-
-    >>> proxy = XMLRPCProxy('proxy')
-
-Our Document has never been synchronized before, so we get no status data.
-
-    >>> proxy.getSyncStatus(site_id, doc.UID())
-    (-1, -1)
-
-Now we synchronize for the first time
-
-    >>> proxy.syncObject(doc.portal_type, mydata, site_id, doc.UID())
-    ('Object was created', 'http://www.mysite.com/Document/mydoc')
-
-And now we have a status:
-
-    >>> proxy.getSyncStatus(site_id, doc.UID())
-    (1, 'http://www.mysite.com/Document/mydoc')
-
-We synchronize again
-
-    >>> proxy.syncObject(doc.portal_type, mydata, site_id, doc.UID())
-    ('Object was modified', 'http://www.mysite.com/Document/mydoc')
-
-And the status returns a 'newer' date
-
-    >>> proxy.getSyncStatus(site_id, doc.UID())
-    (2, 'http://www.mysite.com/Document/mydoc')
-
-
 Testing the BrowserView
 -----------------------
 
-Get the BrowserView that handles synchronisation
-
     >>> bv = doc.restrictedTraverse('synchronize_content')
-    >>> bv.setProxy(proxy)
-    >>> bv.setSiteId(site_id)
-
-We get the identical sync status as before:
-
-    >>> bv.getSyncStatus()
-    (2, 'http://www.mysite.com/Document/mydoc')
-
-And synching also works...
-
-    >>> bv.syncObject(doc.portal_type, mydata, doc.UID())
-    ('Object was modified', 'http://www.mysite.com/Document/mydoc')
-
-so that "date" is updated again
-
-    >>> bv.getSyncStatus()
-    (3, 'http://www.mysite.com/Document/mydoc')
-
-
-Testing the Extractor
----------------------
-
-    >>> from slc.synchronizer.interfaces import IDataExtractor
-
-Apply the adapter for extracting to the Document and call it to retrieve the data
+    >>> from slc.synchronizer.interfaces import IAccessStorage, IDataExtractor
+    >>> from Testing.makerequest import makerequest
+    >>> app = makerequest(app) 
+    >>> targetfolderid = folder.invokeFactory(id='target', type_name='Folder')
+    >>> from Products.PloneTestCase.setup import portal_owner, default_password
+    >>> app.REQUEST.set('username', portal_owner)
+    >>> app.REQUEST.set('password', default_password)
+    >>> app.REQUEST.set('server', "%s/%s" %(folder.absolute_url(), targetfolderid))
+    
+First we extract the data from our document to have it sent to the targetfolder.
 
     >>> extractor = IDataExtractor(doc)
-    >>> data = extractor()
+    >>> syncstatus = bv.syncObject(extractor.portal_type(), 
+    ...                            extractor.data(), 
+    ...                            remote_uid=doc.UID(), 
+    ...                            translation_reference_uid=bv._get_trans(doc))
 
-We get a mapping
+We cannot test xmlrpc here, so we get an error
+    >>> syncstatus[0]
+    2
 
-    >>> isinstance(data, dict)
-    True
-
-The title is present in the mapping, and corresponds to the one we set
-
-    >>> data.get('title', '')
-    'doctitle'
-
-Metadata fields are alo part of the data.
-
-    >>> data.has_key('rights')
-    True
-
-    >>> #import pdb; pdb.set_trace()
