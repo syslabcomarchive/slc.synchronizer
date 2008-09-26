@@ -8,9 +8,9 @@
        id="synchronizerForm">
    
     <style type="text/css">
-        div.synced {background-color: lightgreen; }
+        div.synced {background-color: #e1ffe1; }
         div.unsynced {background-color: #eeeeee; }
-        li.synced{background-color: lightgreen; }
+        li.synced{background-color: #e1ffe1; }
         li.unsynced{background-color: #eeeeee; }
     </style>
   

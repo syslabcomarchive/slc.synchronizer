@@ -6,7 +6,9 @@ from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 from Products.CMFCore.utils import getToolByName
 from slc.synchronizer.interfaces import IReceiver, IUIDMappingStorage, IObjectFinder
 from types import *
+import logging
 
+logger = logging.getLogger('slc.synchronizer.receiver')
 UNWANTED_ATTRS = ['creation_date', 'modification_date']
 
 class InvalidCatalogResponseError:
@@ -45,7 +47,11 @@ class Receiver(BrowserView):
             return (-1, -1)
         return (brain.ModificationDate, brain.getURL())
 
-    def syncObject(self, portal_type, data={}, site_id='', remote_uid=None, translation_reference_uid=None):
+    def syncObject(self, portal_type, 
+                         data={}, 
+                         site_id='', 
+                         remote_uid=None, 
+                         translation_reference_uid=None):
         """ check if an object to the given remote_uid exists
             if not, create one using the portal_type
             update its data using the data mapping
@@ -89,7 +95,13 @@ class Receiver(BrowserView):
                 try:
                     _ = self.context.invokeFactory(id=data['id'], type_name=portal_type)
                 except ValueError, ve:
+                    import traceback; traceback.print_exc()
+                    logger.error(str(ve)) 
                     return 1, str(ve), ''
+                except Exception, e:
+                    import traceback; traceback.print_exc()
+                    logger.error(str(e)) 
+                    return 2, str(e), ''
                 ob = getattr(self.context, _)
                 # we send an id, we want it to stay this way!
                 ob._at_rename_after_creation = False

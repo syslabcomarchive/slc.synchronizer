@@ -44,16 +44,16 @@ class Synchronizer(BrowserView):
         """
         context = Acquisition.aq_inner(self.context)
         R = context.REQUEST        
+        putil = getToolByName(context, 'plone_utils')
+        log = putil.addPortalMessage
         pc = getToolByName(context, 'portal_catalog')
+
         if R.has_key('savecredentials') and R.get('savecredentials', '') != '':
             self._save_credentials()
+            log("Credentials saved" , 'info')
             
         if R.has_key('form.button.Synchronize'):
-            putil = getToolByName(context, 'plone_utils')
-            log = putil.addPortalMessage
-
             results = pc(Language='all', UID=R.get('also'))
-
 
             obs = [x.getObject() for x in results]
             obs.append(context)
@@ -75,7 +75,10 @@ class Synchronizer(BrowserView):
                     log("%s - URL: %s" %(syncstatus[1], syncstatus[2]), 'warning')
                 else:
                     log("%s - URL: %s" %(syncstatus[1], syncstatus[2]), 'error')
-                                        
+        
+        if R.has_key('form.button.Status'):
+            log("Status updated", 'info')
+                                            
         return self.template() 
 
 
