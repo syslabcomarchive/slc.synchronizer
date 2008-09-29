@@ -181,8 +181,7 @@
                 <div>
                     <input type="text" 
                            name="server" 
-                           size="80"         
-                           value="http://devel:5050/syncer/target/">
+                           size="80">
                 </div>
             </div>
     
@@ -191,8 +190,7 @@
                 <div>
                     <input type="text" 
                            name="username" 
-                           size="20"         
-                           value="admin">
+                           size="20">
                 </div>
             </div>
     
@@ -201,8 +199,7 @@
                 <div>
                     <input type="password" 
                            name="password" 
-                           size="20"         
-                           value="">
+                           size="20">
                 </div>
             </div>
     
