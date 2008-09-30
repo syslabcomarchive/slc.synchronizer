@@ -124,10 +124,10 @@ class Synchronizer(BrowserView):
         if not server or not username or not password:
             storage = queryUtility(IAccessStorage)
             if R.get('credentials', '') != '':
-                username, server = R['credentials'].split('@', 1)
+                username, server = R['credentials'].rsplit('@', 1)
                 password = storage.get(server, username, '')
             elif self.syncsettings.credentials != '':
-                username, server = self.syncsettings.credentials.split('@', 1)
+                username, server = self.syncsettings.credentials.rsplit('@', 1)
                 password = storage.get(server, username, '')                
             else:
                 return '', '', ''
