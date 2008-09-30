@@ -47,6 +47,15 @@ class Receiver(BrowserView):
             return (-1, -1)
         return (brain.ModificationDate, brain.getURL())
 
+    def _add_translation(self, ob, site_id, translation_reference_uid):
+        canonical = self._get_obj_by_remote_uid(site_id, translation_reference_uid)                
+        if canonical is None:
+            return 
+        canonical = canonical.getObject()
+        if not ob.hasTranslation(canonical.Language()):
+            ob.addTranslationReference(canonical)        
+            
+            
     def syncObject(self, portal_type, 
                          data={}, 
                          site_id='', 
@@ -80,7 +89,7 @@ class Receiver(BrowserView):
             else:            
                 if storage.has_remote_uid(site_id, value):
                     newdata[i] = storage.get(site_id, value)
-            
+        
         brain = self._get_obj_by_remote_uid(site_id, remote_uid)
         
         if brain is None:
@@ -107,12 +116,14 @@ class Receiver(BrowserView):
                 ob._at_rename_after_creation = False
                 
             ob.processForm(data=1, metadata=1, values=newdata)
+            self._add_translation(ob, site_id, translation_reference_uid)
             storage.add(site_id, remote_uid, ob.UID())
             return 0, "Object created successfully", ob.absolute_url()
         else:
             # editing existing object
             ob = brain.getObject()
             ob.processForm(data=1, metadata=1, values=newdata)
+            self._add_translation(ob, site_id, translation_reference_uid)
             storage.add(site_id, remote_uid, ob.UID())
             return 0, "Object modified successfully", ob.absolute_url()
                              

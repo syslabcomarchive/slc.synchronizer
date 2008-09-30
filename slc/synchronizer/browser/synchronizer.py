@@ -10,6 +10,9 @@ from persistent import Persistent
 from zope.annotation.interfaces import IAnnotations
 from AccessControl import Unauthorized
 from DateTime import DateTime
+import logging
+
+logger = logging.getLogger('slc.synchronizer')
 
 #XXX: Should also work without Linguaplone - untested
 try:
@@ -106,7 +109,7 @@ class Synchronizer(BrowserView):
 
 
     def _get_trans(self, ob):
-        if not HAVE_LP or not ITranslatable.implementedBy(ob):
+        if not HAVE_LP or not ITranslatable.providedBy(ob):
             return ''
         can = ob.getCanonical()
         if can != ob:
@@ -246,6 +249,7 @@ class Synchronizer(BrowserView):
             update its data using the data mapping
             returns a feedback message and the link of the object in question
         """
+        logger.info("Synchronizing %s, remote_uid %s, translation %s" %(portal_type, remote_uid, translation_reference_uid))
         try:
             syncstat = self.rpc.syncObject(portal_type, data, self.getSiteId(), remote_uid, translation_reference_uid)
         except Exception, e:
