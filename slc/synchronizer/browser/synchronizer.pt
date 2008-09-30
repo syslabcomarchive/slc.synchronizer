@@ -223,6 +223,11 @@
                  class="context" 
                  name="form.button.Status" 
                  value="Update Status"/>
+                 
+          <input type="submit" 
+                 class="context" 
+                 name="form.button.DeleteCredentials" 
+                 value="Delete selected credentials"/>
 
         </div>
         

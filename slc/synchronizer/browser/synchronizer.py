@@ -11,7 +11,7 @@ from zope.annotation.interfaces import IAnnotations
 from AccessControl import Unauthorized
 from DateTime import DateTime
 
-#XXX: Should also work without Linguaplone
+#XXX: Should also work without Linguaplone - untested
 try:
     from Products.LinguaPlone.interfaces import ITranslatable
     HAVE_LP = True
@@ -76,11 +76,23 @@ class Synchronizer(BrowserView):
                 else:
                     log("%s - URL: %s" %(syncstatus[1], syncstatus[2]), 'error')
         
-        if R.has_key('form.button.Status'):
+        elif R.has_key('form.button.Status'):
             log("Status updated", 'info')
+        elif R.has_key('form.button.DeleteCredentials'):
+            if R.has_key('credentials'):
+                self._delete_credentials(R.get('credentials'))
+                log("Credentials deleted", 'info')
+            else:
+                log("No credentials selected. Nothing has been deleted", 'warning')
+                
                                             
         return self.template() 
 
+    def _delete_credentials(self, credentials):
+        """ delete selected credentials from the storage """
+        storage = queryUtility(IAccessStorage)
+        username, server = credentials.rsplit('@', 1)
+        storage.remove(server, username)                
 
     def _save_credentials(self):
         """ save entered credentials into the storage, if the checkbox is checked
@@ -128,7 +140,11 @@ class Synchronizer(BrowserView):
                 password = storage.get(server, username, '')
             elif self.syncsettings.credentials != '':
                 username, server = self.syncsettings.credentials.rsplit('@', 1)
-                password = storage.get(server, username, '')                
+                password = storage.get(server, username, '')
+            # elif self.portal_syncsettings.credentials !='':
+            #     #check if there is a global credential default 
+            #     username, server = self.portal_syncsettings.credentials.rsplit('@', 1)
+            #     password = storage.get(server, username, '')                
             else:
                 return '', '', ''
         return server, username, password
@@ -215,6 +231,11 @@ class Synchronizer(BrowserView):
     def syncsettings(self):
         ann = IAnnotations(self.context)
         return ann.setdefault(ANNOKEY, SyncSettings())
+
+    # @property
+    # def portal_syncsettings(self):
+    #     ann = IAnnotations(self.context.portal_url.getPortalObject())
+    #     return ann.setdefault(ANNOKEY, SyncSettings())
 
     def syncObject(self, portal_type, 
                          data={}, 
