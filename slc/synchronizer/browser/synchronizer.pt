@@ -6,6 +6,20 @@
 <body>
   <div metal:fill-slot="main" 
        id="synchronizerForm">
+       <script>
+       jq(document).ready(function(){
+         jq('#new_credentials').hide();
+         jq('#new_credentials_text').click(function () {
+               if (jq('#new_credentials').is(":hidden")) {
+                 jq('#new_credentials').slideDown("quick");
+               } else {
+                 jq('#new_credentials').hide();
+               }
+             });
+       
+       });
+       
+       </script>
    
     <style type="text/css">
         div.synced {background-color: #e1ffe1; }
@@ -172,9 +186,9 @@
             </div>
         </div>
 
-        <fieldset>
-        
-            <legend>or specify new credentials</legend>
+        <a id="new_credentials_text">[click to specify new credentials]</a>
+        <fieldset id="new_credentials">
+            <legend>specify new credentials</legend>
 
             <div class="field">
                 <label>Target location</label>
