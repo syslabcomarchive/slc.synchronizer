@@ -54,6 +54,7 @@ class Receiver(BrowserView):
         canonical = canonical.getObject()
         if not ob.hasTranslation(canonical.Language()):
             ob.addTranslationReference(canonical)        
+        ob.invalidateTranslationCache()        
             
             
     def syncObject(self, portal_type, 
