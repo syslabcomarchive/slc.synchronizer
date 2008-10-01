@@ -56,10 +56,12 @@ class Synchronizer(BrowserView):
             log("Credentials saved" , 'info')
             
         if R.has_key('form.button.Synchronize'):
-            results = pc(Language='all', UID=R.get('also'))
+            refs = pc(Language='all', UID=R.get('refs'))
+            trans = pc(Language='all', UID=R.get('trans'))
 
-            obs = [x.getObject() for x in results]
-            obs.append(context)
+            refs = [x.getObject() for x in refs]
+            trans = [x.getObject() for x in trans]
+            obs = refs + [contenxt] + trans
             for ob in obs:
                 # Here the magic happens. IDataExtractor reads all 
                 # attributes from the object and modifies them so that

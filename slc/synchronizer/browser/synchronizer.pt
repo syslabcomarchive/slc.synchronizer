@@ -82,7 +82,7 @@
                                     sync_status python:view.getSyncStatus(uid=item.UID())"
                         tal:attributes="class python:sync_status[0]==-1 and 'unsynced' or 'synced'">
     
-                        <input type="checkbox" name="also:list"
+                        <input type="checkbox" name="trans:list"
                                tal:attributes="value item/UID" 
                                checked="checked">
                         <img tal:attributes="src item/icon" /> 
@@ -120,7 +120,7 @@
                                     sync_status python:view.getSyncStatus(uid=item.UID())"
                         tal:attributes="class python:sync_status[0]==-1 and 'unsynced' or 'synced'">
     
-                        <input type="checkbox" name="also:list"
+                        <input type="checkbox" name="refs:list"
                                tal:attributes="value item/UID" 
                                checked="checked">
                         <img tal:attributes="src item/icon" /> 
