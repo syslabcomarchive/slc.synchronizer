@@ -61,7 +61,7 @@ class Synchronizer(BrowserView):
 
             refs = [x.getObject() for x in refs]
             trans = [x.getObject() for x in trans]
-            obs = refs + [contenxt] + trans
+            obs = refs + [context] + trans
             for ob in obs:
                 # Here the magic happens. IDataExtractor reads all 
                 # attributes from the object and modifies them so that
