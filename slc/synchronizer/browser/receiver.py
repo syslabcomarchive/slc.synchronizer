@@ -99,7 +99,6 @@ class Receiver(BrowserView):
             # use the following hook by providing your own utility to find an object to use
             finder = queryUtility(IObjectFinder)
             ob = finder(data)
-            ob = None
             # nothing found, add a new object
             if ob is None:
                 try:
@@ -115,17 +114,19 @@ class Receiver(BrowserView):
                 ob = getattr(self.context, _)
                 # we send an id, we want it to stay this way!
                 ob._at_rename_after_creation = False
-                
+                msg = "Object created successfully"
+            else:
+                msg = "Existing object edited successfully"
             ob.processForm(data=1, metadata=1, values=newdata)
             self._add_translation(ob, site_id, translation_reference_uid)
             storage.add(site_id, remote_uid, ob.UID())
-            return 0, "Object created successfully", ob.absolute_url()
+            return 0, msg, ob.absolute_url()
         else:
-            # editing existing object
+            # editing existing, previously synchronized object
             ob = brain.getObject()
             ob.processForm(data=1, metadata=1, values=newdata)
             self._add_translation(ob, site_id, translation_reference_uid)
             storage.add(site_id, remote_uid, ob.UID())
             return 0, "Object modified successfully", ob.absolute_url()
-                             
+
 
