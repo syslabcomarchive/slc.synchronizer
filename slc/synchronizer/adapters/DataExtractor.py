@@ -31,7 +31,7 @@ class BaseDataExtractor(object):
                 data[fname] = field.getRaw(self.context)
             else:
                 value = field.getAccessor(self.context)()
-                if value is None:
+                if value is None or not value:
                     value = "[[None]]"
                 data[fname] = value
         return data
