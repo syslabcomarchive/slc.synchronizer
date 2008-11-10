@@ -7,12 +7,11 @@ class ObjectFinder(object):
     """
     implements(IObjectFinder)
     
-    def __call__(self, data):
+    def __call__(self, data, portal_type):
         portal = getSite()
         pc = portal.portal_catalog
         title = data.get('title')
-        portal_type = data.get('portal_type')
-        results = pc(portal_type=portal_type, title=title, Language='all')
+        results = pc(portal_type=portal_type, Title=title, Language='all')
         if len(results)==1:
             return results[0].getObject()
         return None

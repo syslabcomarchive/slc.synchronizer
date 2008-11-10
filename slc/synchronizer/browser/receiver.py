@@ -98,7 +98,7 @@ class Receiver(BrowserView):
             # an existing object based on whatever criteria to avoid dublettes, you can 
             # use the following hook by providing your own utility to find an object to use
             finder = queryUtility(IObjectFinder)
-            ob = finder(data)
+            ob = finder(data, portal_type)
             # nothing found, add a new object
             if ob is None:
                 try:
