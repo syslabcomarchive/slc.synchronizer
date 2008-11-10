@@ -73,7 +73,8 @@ class Receiver(BrowserView):
         for i in data.keys():
             value = data[i]
             if value=="[[None]]":
-                newdata[i] = None
+                del newdata[i]
+                ##newdata[i] = None
             if i in UNWANTED_ATTRS:
                 del newdata[i]
             # rewrite the referenced object UIDs using our local uid storage
