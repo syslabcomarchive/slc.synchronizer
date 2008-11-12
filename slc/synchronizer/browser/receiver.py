@@ -121,6 +121,9 @@ class Receiver(BrowserView):
                 ob._at_rename_after_creation = False
                 msg = "Object created successfully"
             else:
+                # object exists, don't change its id
+                if newdata.has_key('id'):
+                    del newdata['id'] 
                 msg = "Existing object edited successfully"
             ob.processForm(data=1, metadata=1, values=newdata)
             self._add_translation(ob, site_id, translation_reference_uid)
