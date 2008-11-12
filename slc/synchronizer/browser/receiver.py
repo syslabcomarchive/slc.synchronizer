@@ -93,13 +93,17 @@ class Receiver(BrowserView):
                     newdata[i] = storage.get(site_id, value)
         
         brain = self._get_obj_by_remote_uid(site_id, remote_uid)
-        
+
         if brain is None:
             # There is no matching object in our registry. If you want to try to match 
             # an existing object based on whatever criteria to avoid dublettes, you can 
             # use the following hook by providing your own utility to find an object to use
-            finder = queryUtility(IObjectFinder)
-            ob = finder(data, portal_type)
+            # The object finder wil not be invoked when dealing with a translation.
+            if not translation_reference_uid:
+                finder = queryUtility(IObjectFinder)
+                ob = finder(data, portal_type)
+            else:
+                ob = None
             # nothing found, add a new object
             if ob is None:
                 try:
