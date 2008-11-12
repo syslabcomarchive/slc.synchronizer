@@ -19,7 +19,12 @@ class ObjectFinder(object):
             search_title = search_title.replace(char, ' ')
         results = pc(portal_type=portal_type, Title=search_title, Language='all')
         if len(results)==1:
-            return results[0].getObject()
+            try:
+                target_title = unicode(results[0].Title, 'utf-8')
+            except:
+                return None
+            if title == target_title:
+                return results[0].getObject()
         elif len(results)>1:
             possible_results = list()
             for res in results:
