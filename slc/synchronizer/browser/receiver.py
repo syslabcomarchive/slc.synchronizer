@@ -132,6 +132,10 @@ class Receiver(BrowserView):
         else:
             # editing existing, previously synchronized object
             ob = brain.getObject()
+            # object exists, don't change its id
+            if newdata.has_key('id'):
+                del newdata['id']
+
             ob.processForm(data=1, metadata=1, values=newdata)
             self._add_translation(ob, site_id, translation_reference_uid)
             storage.add(site_id, remote_uid, ob.UID())
