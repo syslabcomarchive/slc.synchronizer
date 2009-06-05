@@ -1,0 +1,36 @@
+slc.synchronizer Changelog
+==========================
+
+Todo
+----
+
+- allow to remove credentials again
+- cleanup of the uid registry when objects get deleted
+- implement a read only/read write policy for matched objects sync
+
+
+slc.synchronizer 1.1 (2009-05-12)
+---------------------------------
+
+- Packaged egg (pilz)
+
+
+slc.synchronizer 1.0 (2008-06-31)
+---------------------------------
+
+- UI cleanup
+- Error handling in frontend and backend
+    
+    
+slc.synchronizer 1.0b1 (2008-04-31)
+-----------------------------------
+
+- Can synchronize basic atdocuments
+- support for credentials, remembers credential keys annotated on objects
+- support for syncing related objects and translations
+    
+
+slc.synchronizer 0.1 (2008-03-31)
+---------------------------------
+
+- Initial port
