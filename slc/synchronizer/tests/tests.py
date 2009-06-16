@@ -1,72 +1,50 @@
-import os, sys
-
-from slc.synchronizer import GLOBALS
-
-import glob
-from zope.testing import doctest
-import unittest
-
 from Globals import package_home
+from Products.CMFPlone.tests import PloneTestCase
+from Products.Five import fiveconfigure, zcml
+from Products.PloneTestCase import layer
+from Products.PloneTestCase.layer import onsetup, onsetup
 from Testing import ZopeTestCase as ztc
 from Testing.ZopeTestCase import FunctionalDocFileSuite as Suite
-from Products.CMFPlone.tests import PloneTestCase
-from Products.PloneTestCase.layer import onsetup
-from Products.Five import zcml
-from Products.Five import fiveconfigure
+from slc.synchronizer import GLOBALS
+from zope.annotation import IAttributeAnnotatable
+from zope.interface import implements
+from zope.publisher.browser import TestRequest as ZopeTestRequest
+from zope.publisher.interfaces.browser import IBrowserRequest
+from zope.publisher.interfaces.http import IHTTPRequest
+from zope.testing import doctest
 import Products.Five.testbrowser
-    
-REQUIRE_TESTBROWSER = []
+import glob
+import os
+import sys
+import unittest
 
 OPTIONFLAGS = (doctest.REPORT_ONLY_FIRST_FAILURE |
                doctest.ELLIPSIS |
                doctest.NORMALIZE_WHITESPACE)
 
+SiteLayer = layer.PloneSite
 
-@onsetup
-def setup_product():
-    """Set up the package and its dependencies.
-    
-    The @onsetup decorator causes the execution of this body to be deferred
-    until the setup of the Plone site testing layer. We could have created our
-    own layer, but this is the easiest way for Plone integration tests.
-    """
-       
-    fiveconfigure.debug_mode = True
-    import slc.synchronizer
-    zcml.load_config('configure.zcml', slc.synchronizer)
-    fiveconfigure.debug_mode = False
-    
-    # 
-    #   ztc.installPackage('borg.localrole')
-    # 
-    
-    ztc.installPackage('slc.synchronizer')
-    
+class SynchronizerLayer(SiteLayer):
+    @classmethod
+    def setUp(cls):
+        """Set up additional products and ZCML required to test this product.
+        """
+        ztc.installProduct('ZCatalog')
+        PloneTestCase.setupPloneSite(products=['slc.synchronizer'])
+        fiveconfigure.debug_mode = True
+        import slc.synchronizer
+        zcml.load_config('configure.zcml', slc.synchronizer)
+        fiveconfigure.debug_mode = False
+        ztc.installPackage('slc.synchronizer')
+        SiteLayer.setUp()
 
-setup_product()
-PloneTestCase.setupPloneSite(products=['slc.synchronizer'])
-
-from zope.interface import implements
-
-from zope.annotation import IAttributeAnnotatable
-from zope.publisher.browser import TestRequest as ZopeTestRequest
-from zope.publisher.interfaces.http import IHTTPRequest
-from zope.publisher.interfaces.browser import IBrowserRequest
-	
-class TestRequest(ZopeTestRequest):
-    implements(IHTTPRequest, IAttributeAnnotatable, IBrowserRequest)
-	
-    def set(self, attribute, value):
-        self._environ[attribute] = value
+class TestCase(PloneTestCase.FunctionalTestCase):
+    layer = SynchronizerLayer
 
 def list_doctests():
     home = package_home(GLOBALS)
     return [filename for filename in
             glob.glob(os.path.sep.join([home, 'tests', '*.txt']))]
-
-def list_nontestbrowser_tests():
-    return [filename for filename in list_doctests()
-            if os.path.basename(filename) not in REQUIRE_TESTBROWSER]
 
 def test_suite():
     filenames = list_doctests()
@@ -74,18 +52,8 @@ def test_suite():
     suites = [Suite(os.path.sep.join(['tests', os.path.basename(filename)]),
                     optionflags=OPTIONFLAGS,
                     package='slc.synchronizer',
-                    test_class=PloneTestCase.FunctionalTestCase)
+                    test_class=TestCase)
               for filename in filenames]
 
 
-    # BBB: Fix for http://zope.org/Collectors/Zope/2178
-    from Products.PloneTestCase import layer
-    from Products.PloneTestCase import setup
-
-    if setup.USELAYER:
-        for s in suites:
-            if not hasattr(s, 'layer'):
-                s.layer = layer.PloneSite
-
     return unittest.TestSuite(suites)
-  

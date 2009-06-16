@@ -7,13 +7,14 @@ necessary to create or edit a new object as well as return status information.
 
 Every folderish object can be used as a bridgehead to call the synchronizer mechanism.
     
+	>>> from zope.publisher.browser import TestRequest
     >>> from zope.component import getAdapter, getMultiAdapter
     >>> from slc.synchronizer.interfaces import IReceiver
-    >>> receiver = getMultiAdapter((self.folder, self.folder.REQUEST), name=u"synchronize_receiver")
 
 First a remote site will usually call getSyncStatus, so find out if an object
 already has been synced. We have not synced anything yet, so the return will be None
 
+    >>> receiver = getMultiAdapter((self.folder, TestRequest()), name=u"synchronize_receiver")
     >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') 
     (-1, -1)
     
@@ -21,6 +22,7 @@ Next, we assume the receiver gets called with the data to add a new document.
 Currently there are no translations for that document. It should return the link 
 to the new object
     
+    >>> receiver = getMultiAdapter((self.folder, TestRequest()), name=u"synchronize_receiver")
     >>> result = receiver.syncObject(portal_type="Document", 
     ...                              data={'id': 'synctest', 
     ...                                    'title': 'Synced Title', 
@@ -44,6 +46,7 @@ And finally the object has been created.
 If the sync status is now called for the same object, it will return the 
 modification date of the now existing object.
 
+    >>> receiver = getMultiAdapter((self.folder, TestRequest()), name=u"synchronize_receiver")
     >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') == (-1, -1)
     False
     
@@ -53,6 +56,7 @@ object will be edited.
     >>> len(self.folder.objectIds())
     1
 
+    >>> receiver = getMultiAdapter((self.folder, TestRequest()), name=u"synchronize_receiver")
     >>> result = receiver.syncObject(portal_type="Document", 
     ...                              data={'id': 'synctest', 
     ...                                    'title': 'ReSynced Title', 
