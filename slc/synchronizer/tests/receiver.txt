@@ -44,7 +44,7 @@ And finally the object has been created.
 If the sync status is now called for the same object, it will return the 
 modification date of the now existing object.
 
-    >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') is None
+    >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') == (-1, -1)
     False
     
 If the object is now synced again, it will not be created anew but the existing 
