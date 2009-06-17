@@ -9,6 +9,11 @@ Todo
 - implement a read only/read write policy for matched objects sync
 
 
+slc.synchronizer 1.2 (2009-06-17)
+---------------------------------
+
+- fixed tests (gerken)
+
 slc.synchronizer 1.1 (2009-05-12)
 ---------------------------------
 
