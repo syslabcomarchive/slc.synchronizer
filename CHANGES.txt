@@ -8,6 +8,11 @@ Todo
 - cleanup of the uid registry when objects get deleted
 - implement a read only/read write policy for matched objects sync
 
+slc.synchronizer 1.2.2 (unreleased)
+-----------------------------------
+
+- Added EUPL license (deroiste)
+
 slc.synchronizer 1.2.1 (2009-07-06)
 -----------------------------------
 
