@@ -27,6 +27,7 @@ class SyncSettings(Persistent):
     """ store sync status information 
     """    
     credentials = ''
+    last_synchronized = ''
     
         
 class Synchronizer(BrowserView):
@@ -118,7 +119,9 @@ class Synchronizer(BrowserView):
             return can.UID()
         return ''
         
-        
+
+    def getLastSync(self):
+        return self.syncsettings.last_synchronized
     
     def default_credentials(self):
         """ called by the form it checks if there is a credentials field in the request. 
@@ -261,6 +264,7 @@ class Synchronizer(BrowserView):
         if server and login:
             cred = "%s@%s" % (login, server)
             self.syncsettings.credentials = cred
+            self.syncsettings.last_synchronized = DateTime()
             
         return syncstat
 
