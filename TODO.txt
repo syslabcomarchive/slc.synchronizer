@@ -1,5 +1,5 @@
-Todo
-----
+To do
+*****
 
 - allow to remove credentials again
 - cleanup of the uid registry when objects get deleted

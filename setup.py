@@ -18,6 +18,8 @@ long_description = (
     + '\n' +
     read('CHANGES.txt')
     + '\n' +
+    read('TODO.txt')
+    + '\n' +
     'Detailed Documentation\n'
     '**********************\n'
     + '\n' +
