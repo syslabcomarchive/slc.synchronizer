@@ -67,6 +67,5 @@ setup(name='slc.synchronizer',
       entry_points="""
       # -*- entry_points -*- 
       """,
-      paster_plugins = ["ZopeSkel"],
       )      
       
