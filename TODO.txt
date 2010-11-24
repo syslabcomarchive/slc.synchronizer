@@ -1,0 +1,6 @@
+Todo
+----
+
+- allow to remove credentials again
+- cleanup of the uid registry when objects get deleted
+- implement a read only/read write policy for matched objects sync
