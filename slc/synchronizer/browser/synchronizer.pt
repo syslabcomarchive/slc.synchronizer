@@ -4,8 +4,9 @@
     i18n:domain="plone">
 
 <body>
-  <div metal:fill-slot="main" 
-       id="synchronizerForm">
+  <div metal:fill-slot="main"
+       id="synchronizerForm"
+       tal:define="toLocalizedTime nocall: context/@@plone/toLocalizedTime;">
        <script>
        jq(document).ready(function(){
          jq('#new_credentials').hide();
