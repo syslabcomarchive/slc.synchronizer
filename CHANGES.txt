@@ -1,11 +1,10 @@
 slc.synchronizer Changelog
 ==========================
 
-1.2.3 (unreleased)
+1.2.3 (2011-11-29)
 ------------------
 
-- Nothing changed yet.
-
+- Minimal PT change for Plone4 [thomasw]
 
 1.2.2 (2010-11-24)
 ------------------
