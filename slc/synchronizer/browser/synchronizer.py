@@ -197,8 +197,9 @@ class Synchronizer(BrowserView):
 
     def getSiteId(self):
         """ set the site-id which identifies this site at the receving end 
+            HARD-CODED for GFB
         """
-        return "/".join(self.context.portal_url.getPortalObject().getPhysicalPath())
+        return "/osha/gfb"
 
     def getReferences(self):
         """ retrieve all objects which are referenced by this object
