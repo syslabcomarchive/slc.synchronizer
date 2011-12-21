@@ -1,6 +1,12 @@
 slc.synchronizer Changelog
 ==========================
 
+1.2.6-gfb-hardcoded (unreleased)
+--------------------------------
+
+- Nothing changed yet.
+
+
 1.2.5-gfb-hardcoded (2011-12-21)
 --------------------------------
 
