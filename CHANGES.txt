@@ -1,8 +1,8 @@
 slc.synchronizer Changelog
 ==========================
 
-1.2.4 (2011-12-21)
-------------------
+1.2.4-gfb-hardcoded (2011-12-21)
+--------------------------------
 
 - Hard-coded GFB site_id  [thomasw]
 
