@@ -1,7 +1,7 @@
 slc.synchronizer Changelog
 ==========================
 
-1.2.6-gfb-hardcoded (unreleased)
+1.2.6-gfb-hardcoded (2011-12-21)
 --------------------------------
 
 - Bugfix: only save sync status for the actual context (=we are on the canonical
