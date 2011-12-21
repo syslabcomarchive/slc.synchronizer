@@ -233,9 +233,10 @@ class Synchronizer(BrowserView):
         except Exception, e:
             return [-1, 'Error: %s'%str(e)]
         else:
-            # save data
-            self.syncsettings.remote_url = syncstat[1]
-            self.syncsettings.remote_modificaction_date = syncstat[0]
+            # save data, but only for the actual context
+            if self.context.UID() == uid:
+                self.syncsettings.remote_url = syncstat[1]
+                self.syncsettings.remote_modificaction_date = syncstat[0]
             return syncstat
 
     @property
