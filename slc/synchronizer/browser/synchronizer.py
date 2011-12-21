@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import Acquisition, types
 from zope.interface import implements
 from Products.Five.browser import BrowserView
@@ -229,7 +230,7 @@ class Synchronizer(BrowserView):
                 syncstat[1]=''
             if syncstat[0]!=-1:
                 syncstat[0] = DateTime(syncstat[0])
-        except Unauthorized, uae:
+        except Unauthorized, e:
             return [-1, 'Unauthorized: %s'%str(e)]
         except Exception, e:
             return [-1, 'Error: %s'%str(e)]
