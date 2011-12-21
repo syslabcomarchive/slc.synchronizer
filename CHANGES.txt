@@ -4,8 +4,8 @@ slc.synchronizer Changelog
 1.2.5-gfb-hardcoded (unreleased)
 --------------------------------
 
-- Nothing changed yet.
-
+- Small optimisation: we cache the status of the last synchronisaton
+  [thomasw]
 
 1.2.4-gfb-hardcoded (2011-12-21)
 --------------------------------

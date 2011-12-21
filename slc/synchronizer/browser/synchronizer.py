@@ -29,6 +29,8 @@ class SyncSettings(Persistent):
     """
     credentials = ''
     last_synchronized = ''
+    remote_url = ''
+    remote_modificaction_date = ''
 
 
 class Synchronizer(BrowserView):
@@ -208,13 +210,17 @@ class Synchronizer(BrowserView):
                     refs.append((item, pw.getCatalogVariablesFor(item).get('review_state', ''), fname))
         return refs
 
-    def getSyncStatus(self, uid=''):
+    def getSyncStatus(self, uid='', fromCache=False):
         """ return status about last synchronization """
         if not uid:
             uid = self.context.UID()
         targeturl = self._generate_target_url()
         if not targeturl:
             return [-1, '']
+        if fromCache:
+            syncsettings = self.syncsettings
+            if syncsettings.remote_url != '':
+                return (syncsettings.remote_modificaction_date, syncsettings.remote_url)
 
         try:
             syncstat = self.rpc.getSyncStatus(self.getSiteId(), uid)
@@ -227,6 +233,9 @@ class Synchronizer(BrowserView):
         except Exception, e:
             return [-1, 'Error: %s'%str(e)]
         else:
+            # save data
+            self.syncsettings.remote_url = syncstat[1]
+            self.syncsettings.remote_modificaction_date = syncstat[0]
             return syncstat
 
     @property
