@@ -1,11 +1,10 @@
 slc.synchronizer Changelog
 ==========================
 
-1.2.4 (unreleased)
+1.2.4 (2011-12-21)
 ------------------
 
-- Nothing changed yet.
-
+- Hard-coded GFB site_id  [thomasw]
 
 1.2.3 (2011-11-29)
 ------------------
