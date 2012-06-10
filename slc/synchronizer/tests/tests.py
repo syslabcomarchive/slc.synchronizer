@@ -1,59 +1,43 @@
-from Globals import package_home
-from Products.CMFPlone.tests import PloneTestCase
-from Products.Five import fiveconfigure, zcml
-from Products.PloneTestCase import layer
-from Products.PloneTestCase.layer import onsetup, onsetup
-from Testing import ZopeTestCase as ztc
-from Testing.ZopeTestCase import FunctionalDocFileSuite as Suite
-from slc.synchronizer import GLOBALS
-from zope.annotation import IAttributeAnnotatable
-from zope.interface import implements
-from zope.publisher.browser import TestRequest as ZopeTestRequest
-from zope.publisher.interfaces.browser import IBrowserRequest
-from zope.publisher.interfaces.http import IHTTPRequest
-from zope.testing import doctest
-import Products.Five.testbrowser
-import glob
-import os
-import sys
-import unittest
+from plone.app.testing import login
+from plone.app.testing import setRoles
+from plone.app.testing import TEST_USER_ID
+from plone.app.testing import TEST_USER_NAME
+from plone.app.testing import FunctionalTesting
+from plone.app.testing import IntegrationTesting
+from plone.app.testing import PLONE_FIXTURE
+from plone.app.testing import PloneSandboxLayer
+from plone.app.testing import applyProfile
+from plone.testing import z2
 
-OPTIONFLAGS = (doctest.REPORT_ONLY_FIRST_FAILURE |
-               doctest.ELLIPSIS |
-               doctest.NORMALIZE_WHITESPACE)
 
-SiteLayer = layer.PloneSite
+class SlcSynchronizer(PloneSandboxLayer):
 
-class SynchronizerLayer(SiteLayer):
-    @classmethod
-    def setUp(cls):
-        """Set up additional products and ZCML required to test this product.
-        """
-        ztc.installProduct('ZCatalog')
-        PloneTestCase.setupPloneSite(products=['slc.synchronizer'])
-        fiveconfigure.debug_mode = True
+    defaultBases = (PLONE_FIXTURE,)
+
+    def setUpZope(self, app, configurationContext):
         import slc.synchronizer
-        zcml.load_config('configure.zcml', slc.synchronizer)
-        fiveconfigure.debug_mode = False
-        ztc.installPackage('slc.synchronizer')
-        SiteLayer.setUp()
+        self.loadZCML('configure.zcml', package=slc.synchronizer)
 
-class TestCase(PloneTestCase.FunctionalTestCase):
-    layer = SynchronizerLayer
+        z2.installProduct(app, 'Products.ZCatalog')
+        z2.installProduct(app, 'slc.synchronizer')
 
-def list_doctests():
-    home = package_home(GLOBALS)
-    return [filename for filename in
-            glob.glob(os.path.sep.join([home, 'tests', '*.txt']))]
+    def setUpPloneSite(self, portal):
+        applyProfile(portal, 'slc.synchronizer:default')
 
-def test_suite():
-    filenames = list_doctests()
+        # Login as manager and create a test folder
+        setRoles(portal, TEST_USER_ID, ['Manager'])
+        login(portal, TEST_USER_NAME)
+        portal.invokeFactory('Folder', 'folder')
 
-    suites = [Suite(os.path.sep.join(['tests', os.path.basename(filename)]),
-                    optionflags=OPTIONFLAGS,
-                    package='slc.synchronizer',
-                    test_class=TestCase)
-              for filename in filenames]
+    def tearDownZope(self, app):
+        z2.uninstallProduct(app, 'Products.ZCatalog')
+        z2.uninstallProduct(app, 'slc.synchronizer')
 
 
-    return unittest.TestSuite(suites)
+SLC_SYNCHRONIZER_FIXTURE = SlcSynchronizer()
+INTEGRATION_TESTING = IntegrationTesting(
+    bases=(SLC_SYNCHRONIZER_FIXTURE,),
+    name="SlcSynchronizer:Integration")
+FUNCTIONAL_TESTING = FunctionalTesting(
+    bases=(SLC_SYNCHRONIZER_FIXTURE,),
+        name="SlcSynchronizer:Functional")

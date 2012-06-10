@@ -5,31 +5,30 @@ Synchronization Receiver
 This component provides an XMLRPC endpoint which can receive data that is 
 necessary to create or edit a new object as well as return status information.
 
-	>>> from Testing.ZopeTestCase.utils import makerequest
-	>>> from zope.app.component.hooks import getSite
+    >>> from zope.app.component.hooks import getSite
+    >>> portal = layer['portal']
+    >>> folder = portal.folder
 
 Every folderish object can be used as a bridgehead to call the synchronizer mechanism.
     
-	>>> from zope.publisher.browser import TestRequest
     >>> from zope.component import getAdapter, getMultiAdapter
     >>> from slc.synchronizer.interfaces import IReceiver
-    >>> portal_objects_before = len(self.portal.objectIds())
+    >>> portal_objects_before = len(portal.objectIds())
 
 First a remote site will usually call getSyncStatus, so find out if an object
 already has been synced. We have not synced anything yet, so the return will be None
 
-    >>> receiver = getMultiAdapter((self.app.plone, TestRequest()), name=u"synchronize_receiver")
+    >>> receiver = getMultiAdapter((portal, portal.REQUEST), name=u"synchronize_receiver")
     >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') 
     (-1, -1)
     
 Next, we assume the receiver gets called with the data to add a new document. 
 Currently there are no translations for that document. It should return the link 
 to the new object
-    
-    >>> self.app = makerequest(self.app)
-    >>> getSite().REQUEST = self.app.REQUEST
-    >>> self.loginAsPortalOwner()
-    >>> receiver = getMultiAdapter((self.app.plone, TestRequest()), name=u"synchronize_receiver")
+
+    >>> from plone.app.testing import login, setRoles, TEST_USER_ID, TEST_USER_NAME
+    >>> setRoles(portal, TEST_USER_ID, ['Manager'])
+    >>> login(portal, TEST_USER_NAME)
     >>> result = receiver.syncObject(portal_type="Document", 
     ...                              data={'id': 'synctest', 
     ...                                    'title': 'Synced Title', 
@@ -47,27 +46,20 @@ to the new object
 And finally the object has been created.
 
     >>> obj_id = result[2].split('/')[-1]
-    >>> obj_id in self.portal.objectIds()
+    >>> obj_id in portal.objectIds()
     True
 
 If the sync status is now called for the same object, it will return the 
 modification date of the now existing object.
 
-    >>> self.app = makerequest(self.app)
-    >>> getSite().REQUEST = self.app.REQUEST
-    >>> receiver = getMultiAdapter((self.app.plone, TestRequest()), name=u"synchronize_receiver")
     >>> receiver.getSyncStatus('sourcesite', 'REMOTEUID') == (-1, -1)
     False
     
 If the object is now synced again, it will not be created anew but the existing 
 object will be edited.
 
-    >>> len(self.portal.objectIds()) - portal_objects_before
+    >>> len(portal.objectIds()) - portal_objects_before
     1
-
-    >>> self.app = makerequest(self.app)
-    >>> getSite().REQUEST = self.app.REQUEST
-    >>> receiver = getMultiAdapter((self.app.plone, TestRequest()), name=u"synchronize_receiver")
     >>> result = receiver.syncObject(portal_type="Document", 
     ...                              data={'id': 'synctest', 
     ...                                    'title': 'ReSynced Title', 
@@ -75,29 +67,21 @@ object will be edited.
     ...                              site_id='sourcesite',
     ...                              remote_uid='REMOTEUID', 
     ...                              translation_reference_uid=None)
-    >>> self.app.REQUEST = None
-    >>> len(self.portal.objectIds()) - portal_objects_before
+    >>> len(portal.objectIds()) - portal_objects_before
     1
-    >>> ob = getattr(self.folder, obj_id, None)
+    >>> ob = getattr(folder, obj_id, None)
     >>> ob.Title()
     'ReSynced Title'
     >>> ob.Description()
     'ReSynced Description'
 
     >>> from Products.CMFCore.utils import getToolByName
-    >>> catalog = getToolByName(self.portal, 'portal_catalog')
-
-    Changing user since we dont want to be portal owner how is allowed to see everything
-    >>> self.login()
+    >>> catalog = getToolByName(portal, 'portal_catalog')
    
     How many Items do we have now
     >>> before = len(catalog.searchResults())
-    >>> doc = self.folder.invokeFactory('Document', 'Document')
+    >>> doc = folder.invokeFactory('Document', 'Document')
 
     We added a Document, it should be in the search results too!
     >>> len(catalog.searchResults()) - before
-    0
-    
-    That should actually be one
-
-		    
+    1
