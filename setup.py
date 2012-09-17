@@ -66,6 +66,7 @@ setup(name='slc.synchronizer',
           ],
       },
       entry_points="""
-      # -*- entry_points -*-
+      [z3c.autoinclude.plugin]
+      target = plone
       """,
       )

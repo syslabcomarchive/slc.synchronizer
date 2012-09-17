@@ -4,8 +4,7 @@ slc.synchronizer Changelog
 1.2.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Plone 4
 
 1.2.2 (2010-11-24)
 ------------------
