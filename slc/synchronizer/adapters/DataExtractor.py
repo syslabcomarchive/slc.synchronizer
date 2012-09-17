@@ -5,21 +5,19 @@ from zope import component
 
 
 class BaseDataExtractor(object):
-    """ 
+    """
     """
     interface.implements(interfaces.IDataExtractor)
     component.adapts(atinterfaces.IBaseObject)
 
-
     def __init__(self, context):
         self.context = context
 
-
     def portal_type(self):
-        """ return the objects portal_type. Can be overridden to synchronize 
-            to a different type"""
+        """ return the objects portal_type. Can be overridden to synchronize
+            to a different type
+        """
         return self.context.portal_type
-
 
     def data(self):
         data = dict()

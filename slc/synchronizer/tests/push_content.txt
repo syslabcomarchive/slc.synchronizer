@@ -10,6 +10,8 @@ Setting up
 Some necessary imports and initializations. 
 
     >>> from DateTime import DateTime
+    >>> portal = layer['portal']
+    >>> folder = portal.folder
 
 Create a Document, which will be used for synching, remembering the UID and Create 
 some data, like title and description, which we can test against.
@@ -30,13 +32,11 @@ Testing the BrowserView
 
     >>> bv = doc.restrictedTraverse('synchronize_content')
     >>> from slc.synchronizer.interfaces import IAccessStorage, IDataExtractor
-    >>> from Testing.makerequest import makerequest
-    >>> app = makerequest(app) 
     >>> targetfolderid = folder.invokeFactory(id='target', type_name='Folder')
     >>> from Products.PloneTestCase.setup import portal_owner, default_password
-    >>> app.REQUEST.set('username', portal_owner)
-    >>> app.REQUEST.set('password', default_password)
-    >>> app.REQUEST.set('server', "%s/%s" %(folder.absolute_url(), targetfolderid))
+    >>> portal.REQUEST.set('username', portal_owner)
+    >>> portal.REQUEST.set('password', default_password)
+    >>> portal.REQUEST.set('server', "%s/%s" %(folder.absolute_url(), targetfolderid))
     
 First we extract the data from our document to have it sent to the targetfolder.
 
