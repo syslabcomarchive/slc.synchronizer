@@ -1,6 +1,12 @@
 slc.synchronizer Changelog
 ==========================
 
+1.2.5 (unreleased)
+------------------
+
+- Nothing changed yet.
+
+
 1.2.4 (2013-05-16)
 ------------------
 
