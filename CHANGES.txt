@@ -4,8 +4,7 @@ slc.synchronizer Changelog
 1.2.7-gfb-hardcoded (unreleased)
 --------------------------------
 
-- Nothing changed yet.
-
+- force https, fixes #7542 [thomasw]
 
 1.2.6-gfb-hardcoded (2011-12-21)
 --------------------------------
