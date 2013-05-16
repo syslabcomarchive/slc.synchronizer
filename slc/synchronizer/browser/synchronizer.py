@@ -164,12 +164,12 @@ class Synchronizer(BrowserView):
         if not server or not login or not password:
             return ''
 
-        if not server.startswith('http://'):
-            server = "http://"+server
+        if not server.startswith('https://'):
+            server = "https://"+server
         if server[-1]=='/':
             server = server[:-1]
 
-        targeturl = "http://%s:%s@%s/synchronize_receiver" % (login, password, server[7:])
+        targeturl = "https://%s:%s@%s/synchronize_receiver" % (login, password, server[8:])
 
         return targeturl
 
