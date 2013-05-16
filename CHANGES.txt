@@ -4,8 +4,7 @@ slc.synchronizer Changelog
 1.2.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- removed stale LP call [thomasw]
 
 1.2.3 (2012-09-17)
 ------------------
